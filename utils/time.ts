@@ -11,6 +11,7 @@ export function parseHHMM(value: string) {
   return hh * 60 + mm;
 }
 
+
 export function formatHHMM(totalMinutes: number) {
   let m = totalMinutes % (24 * 60);
   if (m < 0) m += 24 * 60;

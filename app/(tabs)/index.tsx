@@ -10,6 +10,8 @@ export default function HomeScreen() {
   const [hours, setHours] = useState("8");
   const [result, setResult] = useState<string>("");
 
+
+
   const handleCalculate = () => {
     const start = parseHHMM(startTime);
     const pauseMin = Number((pause || "").replace(",", "."));
