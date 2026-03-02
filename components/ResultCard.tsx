@@ -4,11 +4,21 @@ import { Text, View } from "react-native";
 type Props = {
   endTime?: string; // Soll-Endzeit
   actualEnd?: string; // Eingabe
-  diff?: string; // "+00:10" oder "-00:20"
+  diff?: string; // "+00:10" oder "-00:20" oder "±00:00"
 };
 
 export default function ResultCard({ endTime, actualEnd, diff }: Props) {
   const showDiff = Boolean(actualEnd?.trim()) && Boolean(diff?.trim());
+
+  // Farbe bestimmen anhand von diff
+  // + => grün, - => rot, sonst grau
+  const diffColor = !diff
+    ? "#6b7280"
+    : diff.trim().startsWith("+")
+      ? "#16a34a"
+      : diff.trim().startsWith("-")
+        ? "#dc2626"
+        : "#6b7280";
 
   return (
     <View
@@ -39,7 +49,7 @@ export default function ResultCard({ endTime, actualEnd, diff }: Props) {
             Tatsächlich: {actualEnd}
           </Text>
 
-          <Text style={{ fontSize: 18, fontWeight: "900", color: "#000" }}>
+          <Text style={{ fontSize: 18, fontWeight: "900", color: diffColor }}>
             Differenz: {diff}
           </Text>
         </View>
