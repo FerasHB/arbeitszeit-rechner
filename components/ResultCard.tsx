@@ -2,10 +2,14 @@ import React from "react";
 import { Text, View } from "react-native";
 
 type Props = {
-  endTime?: string;
+  endTime?: string; // Soll-Endzeit
+  actualEnd?: string; // Eingabe
+  diff?: string; // "+00:10" oder "-00:20"
 };
 
-export default function ResultCard({ endTime }: Props) {
+export default function ResultCard({ endTime, actualEnd, diff }: Props) {
+  const showDiff = Boolean(actualEnd?.trim()) && Boolean(diff?.trim());
+
   return (
     <View
       style={{
@@ -16,9 +20,7 @@ export default function ResultCard({ endTime }: Props) {
         alignItems: "center",
       }}
     >
-      <Text style={{ color: "#555", fontWeight: "700" }}>
-        Endzeit
-      </Text>
+      <Text style={{ color: "#555", fontWeight: "700" }}>Soll-Endzeit</Text>
 
       <Text
         style={{
@@ -30,6 +32,18 @@ export default function ResultCard({ endTime }: Props) {
       >
         {endTime || "--:--"}
       </Text>
+
+      {showDiff && (
+        <View style={{ marginTop: 14, alignItems: "center", gap: 6 }}>
+          <Text style={{ color: "#555", fontWeight: "700" }}>
+            Tatsächlich: {actualEnd}
+          </Text>
+
+          <Text style={{ fontSize: 18, fontWeight: "900", color: "#000" }}>
+            Differenz: {diff}
+          </Text>
+        </View>
+      )}
     </View>
   );
 }
