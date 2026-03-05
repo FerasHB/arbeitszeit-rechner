@@ -30,6 +30,20 @@ export function diffMinutes(targetMin: number, actualMin: number) {
   return d;
 }
 
+/**
+ * Signed difference (actual - planned) in minutes.
+ * Handles crossing midnight: picks the closest difference in [-12h, +12h].
+ */
+export function diffMinutesSigned(planned: number, actual: number) {
+  let d = actual - planned;
+
+  // normalize into [-720, 720] to handle midnight wrap nicely
+  const day = 24 * 60;
+  while (d > day / 2) d -= day;
+  while (d < -day / 2) d += day;
+
+  return d;
+}
 export function formatSignedMinutes(minutes: number) {
   const sign = minutes >= 0 ? "+" : "-";
   const abs = Math.abs(minutes);

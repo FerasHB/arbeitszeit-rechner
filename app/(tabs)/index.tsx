@@ -1,66 +1,23 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import LabeledInput from "../../components/LabeledInput";
 import ResultCard from "../../components/ResultCard";
-import { addEntry, loadEntries, WorkEntry } from "../../storage/workEntries";
-import { formatHHMM, parseHHMM } from "../../utils/time";
+import { useWorkCalculator } from "../../hooks/useWorkCalculator";
+import { useWorkEntries } from "../../hooks/useWorkEntries";
 
 export default function HomeScreen() {
   const [startTime, setStartTime] = useState("08:30");
   const [pause, setPause] = useState("30");
   const [hours, setHours] = useState("8");
-  const [entries, setEntries] = useState<WorkEntry[]>([]);
   const [actualEnd, setActualEnd] = useState("");
-  const [endTime, setEndTime] = useState("");
-  const [diff, setDiff] = useState("");
 
-  // ✅ HIER laden (nicht oben im File!)
-  useEffect(() => {
-    (async () => {
-      try {
-        const list = await loadEntries();
-        console.log("📦 loaded entries:", list.length);
-        setEntries(list);
-      } catch (e) {
-        console.log("LOAD ERROR:", e);
-      }
-    })();
-  }, []);
+  const { entries, saveEntry } = useWorkEntries();
+  const { endTime, diff, calculate } = useWorkCalculator();
 
   const handleCalculate = () => {
-    const start = parseHHMM(startTime);
-    const pauseMin = Number((pause || "").replace(",", "."));
-    const workMin = Number((hours || "").replace(",", ".")) * 60;
-
-    if (
-      start === null ||
-      !Number.isFinite(pauseMin) ||
-      !Number.isFinite(workMin)
-    ) {
-      setEndTime("");
-      setDiff("");
-      return;
-    }
-
-    const planned = formatHHMM(
-      start + Math.round(pauseMin) + Math.round(workMin),
-    );
-    setEndTime(planned);
-
-    // diff nur wenn actualEnd gültig ist
-    const actual = parseHHMM(actualEnd);
-    if (actual !== null) {
-      const plannedMin = parseHHMM(planned)!;
-      const d = actual - plannedMin; // Minuten
-      const sign = d >= 0 ? "+" : "-";
-      const abs = Math.abs(d);
-      const hh = String(Math.floor(abs / 60)).padStart(2, "0");
-      const mm = String(abs % 60).padStart(2, "0");
-      setDiff(`${sign}${hh}:${mm}`);
-    } else {
-      setDiff("");
-    }
+    calculate(startTime, pause, hours, actualEnd);
   };
 
   const handleSave = async () => {
@@ -72,8 +29,7 @@ export default function HomeScreen() {
 
       const today = new Date().toISOString().slice(0, 10);
 
-      await addEntry({
-        id: String(Date.now()),
+      await saveEntry({
         date: today,
         startTime,
         pause,
@@ -82,8 +38,6 @@ export default function HomeScreen() {
         actualEnd: actualEnd.trim() ? actualEnd : undefined,
         diff: diff.trim() ? diff : undefined,
       });
-      const updated = await loadEntries();
-      setEntries(updated);
 
       Alert.alert("Gespeichert", "Eintrag wurde gespeichert ✅");
     } catch (e) {
@@ -175,6 +129,7 @@ export default function HomeScreen() {
         </View>
 
         <ResultCard endTime={endTime} actualEnd={actualEnd} diff={diff} />
+
         <View style={{ marginTop: 20 }}>
           <Text style={{ color: "#fff", fontWeight: "800", marginBottom: 10 }}>
             Letzte Einträge:
