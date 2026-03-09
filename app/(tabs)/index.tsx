@@ -129,47 +129,6 @@ export default function HomeScreen() {
         </View>
 
         <ResultCard endTime={endTime} actualEnd={actualEnd} diff={diff} />
-
-        <View style={{ marginTop: 20 }}>
-          <Text style={{ color: "#fff", fontWeight: "800", marginBottom: 10 }}>
-            Letzte Einträge:
-          </Text>
-
-          {entries.slice(0, 5).map((item) => (
-            <View
-              key={item.id}
-              style={{
-                backgroundColor: "#1e1e1e",
-                padding: 12,
-                borderRadius: 12,
-                marginBottom: 8,
-              }}
-            >
-              <Text style={{ color: "#fff", fontWeight: "700" }}>
-                {item.date}
-              </Text>
-
-              <Text style={{ color: "#ccc" }}>
-                {item.startTime} → {item.plannedEnd}
-              </Text>
-
-              {!!item.diff && (
-                <Text
-                  style={{
-                    color: item.diff.startsWith("+")
-                      ? "#16a34a"
-                      : item.diff.startsWith("-")
-                        ? "#dc2626"
-                        : "#6b7280",
-                    fontWeight: "800",
-                  }}
-                >
-                  {item.diff}
-                </Text>
-              )}
-            </View>
-          ))}
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
