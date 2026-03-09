@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -14,10 +15,11 @@ export default function HistoryScreen() {
     const list = await loadEntries();
     setEntries(list);
   };
-
-  useEffect(() => {
-    refresh();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, []),
+  );
 
   const handleClear = async () => {
     await clearEntries();
