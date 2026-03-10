@@ -29,3 +29,23 @@ export async function addEntry(entry: WorkEntry): Promise<WorkEntry[]> {
 export async function clearEntries() {
   await AsyncStorage.removeItem(KEY);
 }
+
+export async function deleteEntry(id: string): Promise<WorkEntry[]> {
+  const list = await loadEntries();
+  const updated = list.filter((item) => item.id !== id);
+  await AsyncStorage.setItem(KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export async function updateEntry(
+  updatedEntry: WorkEntry,
+): Promise<WorkEntry[]> {
+  const list = await loadEntries();
+
+  const updated = list.map((item) =>
+    item.id === updatedEntry.id ? updatedEntry : item,
+  );
+
+  await AsyncStorage.setItem(KEY, JSON.stringify(updated));
+  return updated;
+}

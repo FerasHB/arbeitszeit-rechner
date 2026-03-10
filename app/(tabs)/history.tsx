@@ -1,20 +1,117 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import LabeledInput from "../../components/LabeledInput";
 import {
   clearEntries,
+  deleteEntry,
   loadEntries,
+  updateEntry,
   WorkEntry,
 } from "../../storage/workEntries";
 
+function getWeekRange(date = new Date()) {
+  const d = new Date(date);
+  const day = d.getDay() === 0 ? 7 : d.getDay(); // So = 7
+  d.setHours(0, 0, 0, 0);
+
+  const start = new Date(d);
+  start.setDate(d.getDate() - day + 1);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  return { start, end };
+}
+
+function isDateInCurrentWeek(dateString: string) {
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return false;
+
+  const { start, end } = getWeekRange();
+  date.setHours(0, 0, 0, 0);
+
+  return date >= start && date <= end;
+}
+
+function sumMinutesFromHHMM(value?: string) {
+  if (!value || value === "--:--") return 0;
+  const match = /^([+-]?)(\d{2}):(\d{2})$/.exec(value.trim());
+  if (!match) return 0;
+
+  const sign = match[1] === "-" ? -1 : 1;
+  const hh = Number(match[2]);
+  const mm = Number(match[3]);
+
+  return sign * (hh * 60 + mm);
+}
+
+function formatMinutesToHHMM(total: number) {
+  const sign = total < 0 ? "-" : "";
+  const abs = Math.abs(total);
+  const hh = String(Math.floor(abs / 60)).padStart(2, "0");
+  const mm = String(abs % 60).padStart(2, "0");
+  return `${sign}${hh}:${mm}`;
+}
 export default function HistoryScreen() {
   const [entries, setEntries] = useState<WorkEntry[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editStartTime, setEditStartTime] = useState("");
+  const [editPause, setEditPause] = useState("");
+
+  const handleUpdate = async (item: WorkEntry) => {
+    const plannedEnd = calculatePlannedEnd(
+      editStartTime,
+      editPause,
+      item.hours,
+    );
+
+    const updatedItem: WorkEntry = {
+      ...item,
+      startTime: editStartTime,
+      pause: editPause,
+      actualEnd: editActualEnd.trim() ? editActualEnd : undefined,
+      plannedEnd,
+      diff: editActualEnd.trim()
+        ? calculateDiff(plannedEnd, editActualEnd)
+        : "",
+    };
+
+    const updated = await updateEntry(updatedItem);
+    setEntries(updated);
+    setEditingId(null);
+  };
+
+  const handleEdit = (item: WorkEntry) => {
+    setEditingId(item.id);
+    setEditStartTime(item.startTime);
+    setEditPause(item.pause);
+    setEditActualEnd(item.actualEnd || "");
+  };
+  const [editActualEnd, setEditActualEnd] = useState("");
+  const weeklyEntries = entries.filter((item) =>
+    isDateInCurrentWeek(item.date),
+  );
+
+  const weeklyWorkedMinutes = weeklyEntries.reduce((sum, item) => {
+    const worked = calculateWorkedHours(
+      item.startTime,
+      item.actualEnd,
+      item.pause,
+    );
+    return sum + sumMinutesFromHHMM(worked);
+  }, 0);
+
+  const weeklyDiffMinutes = weeklyEntries.reduce((sum, item) => {
+    return sum + sumMinutesFromHHMM(item.diff);
+  }, 0);
 
   const refresh = async () => {
     const list = await loadEntries();
     setEntries(list);
   };
+
   useFocusEffect(
     useCallback(() => {
       refresh();
@@ -24,6 +121,27 @@ export default function HistoryScreen() {
   const handleClear = async () => {
     await clearEntries();
     refresh();
+  };
+
+  const handleDelete = async (id: string) => {
+    Alert.alert(
+      "Eintrag löschen",
+      "Willst du diesen Eintrag wirklich löschen?",
+      [
+        {
+          text: "Abbrechen",
+          style: "cancel",
+        },
+        {
+          text: "Löschen",
+          style: "destructive",
+          onPress: async () => {
+            const updated = await deleteEntry(id);
+            setEntries(updated);
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -39,7 +157,52 @@ export default function HistoryScreen() {
         >
           History
         </Text>
+        <View
+          style={{
+            backgroundColor: "#1a1a1a",
+            borderRadius: 16,
+            padding: 14,
+            marginBottom: 16,
+            borderWidth: 1,
+            borderColor: "#2a2a2a",
+          }}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              fontWeight: "900",
+              marginBottom: 10,
+            }}
+          >
+            Diese Woche
+          </Text>
 
+          <Text style={{ color: "#d1d5db", fontSize: 14 }}>
+            Einträge: {weeklyEntries.length}
+          </Text>
+
+          <Text style={{ color: "#d1d5db", fontSize: 14, marginTop: 4 }}>
+            Gearbeitet: {formatMinutesToHHMM(weeklyWorkedMinutes)} h
+          </Text>
+
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: "800",
+              marginTop: 4,
+              color:
+                weeklyDiffMinutes > 0
+                  ? "#16a34a"
+                  : weeklyDiffMinutes < 0
+                    ? "#dc2626"
+                    : "#9aa0a6",
+            }}
+          >
+            Überstunden: {weeklyDiffMinutes > 0 ? "+" : ""}
+            {formatMinutesToHHMM(weeklyDiffMinutes)}
+          </Text>
+        </View>
         <Text
           style={{
             color: "#9aa0a6",
@@ -82,61 +245,181 @@ export default function HistoryScreen() {
                   borderColor: "#2a2a2a",
                 }}
               >
-                <Text
+                <View
                   style={{
-                    color: "#fff",
-                    fontWeight: "900",
-                    fontSize: 16,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                     marginBottom: 8,
                   }}
                 >
-                  {formatDate(item.date)}
-                </Text>
-
-                <Text style={{ color: "#d1d5db", fontSize: 15 }}>
-                  Start: {item.startTime}
-                </Text>
-
-                <Text style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}>
-                  Ende: {item.actualEnd || item.plannedEnd}
-                </Text>
-
-                <Text style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}>
-                  Pause: {item.pause} Min.
-                </Text>
-
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 15,
-                    fontWeight: "700",
-                    marginTop: 8,
-                  }}
-                >
-                  Gearbeitet:{" "}
-                  {calculateWorkedHours(
-                    item.startTime,
-                    item.actualEnd,
-                    item.pause,
-                  )}{" "}
-                  h
-                </Text>
-
-                {!!item.diff && (
                   <Text
                     style={{
-                      marginTop: 8,
-                      color: item.diff.startsWith("+")
-                        ? "#16a34a"
-                        : item.diff.startsWith("-")
-                          ? "#dc2626"
-                          : "#6b7280",
+                      color: "#fff",
                       fontWeight: "900",
-                      fontSize: 15,
+                      fontSize: 16,
                     }}
                   >
-                    Differenz: {item.diff}
+                    {formatDate(item.date)}
                   </Text>
+
+                  <View style={{ flexDirection: "row", gap: 8 }}>
+                    <Pressable
+                      onPress={() => handleEdit(item)}
+                      style={({ pressed }) => ({
+                        backgroundColor: "#1d4ed8",
+                        paddingVertical: 6,
+                        paddingHorizontal: 10,
+                        borderRadius: 10,
+                        opacity: pressed ? 0.7 : 1,
+                      })}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontWeight: "800",
+                          fontSize: 12,
+                        }}
+                      >
+                        Bearbeiten
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handleDelete(item.id)}
+                      style={({ pressed }) => ({
+                        backgroundColor: "#7a1f1f",
+                        paddingVertical: 6,
+                        paddingHorizontal: 10,
+                        borderRadius: 10,
+                        opacity: pressed ? 0.7 : 1,
+                      })}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontWeight: "800",
+                          fontSize: 12,
+                        }}
+                      >
+                        Löschen
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+
+                {editingId === item.id ? (
+                  <View style={{ marginTop: 10, gap: 10 }}>
+                    <LabeledInput
+                      label="Startzeit"
+                      value={editStartTime}
+                      onChangeText={setEditStartTime}
+                      placeholder="08:30"
+                      keyboardType="numbers-and-punctuation"
+                    />
+
+                    <LabeledInput
+                      label="Pause"
+                      value={editPause}
+                      onChangeText={setEditPause}
+                      placeholder="30"
+                      keyboardType="number-pad"
+                    />
+
+                    <LabeledInput
+                      label="Tatsächliche Endzeit"
+                      value={editActualEnd}
+                      onChangeText={setEditActualEnd}
+                      placeholder="17:10"
+                      keyboardType="numbers-and-punctuation"
+                    />
+
+                    <View
+                      style={{ flexDirection: "row", gap: 10, marginTop: 6 }}
+                    >
+                      <Pressable
+                        onPress={() => handleUpdate(item)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: "#166534",
+                          paddingVertical: 10,
+                          borderRadius: 10,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "800" }}>
+                          Speichern
+                        </Text>
+                      </Pressable>
+
+                      <Pressable
+                        onPress={() => setEditingId(null)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: "#444",
+                          paddingVertical: 10,
+                          borderRadius: 10,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#fff", fontWeight: "800" }}>
+                          Abbrechen
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                ) : (
+                  <>
+                    <Text style={{ color: "#d1d5db", fontSize: 15 }}>
+                      Start: {item.startTime}
+                    </Text>
+
+                    <Text
+                      style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}
+                    >
+                      Ende: {item.actualEnd || item.plannedEnd}
+                    </Text>
+
+                    <Text
+                      style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}
+                    >
+                      Pause: {item.pause} Min.
+                    </Text>
+
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 15,
+                        fontWeight: "700",
+                        marginTop: 8,
+                      }}
+                    >
+                      Gearbeitet:{" "}
+                      {calculateWorkedHours(
+                        item.startTime,
+                        item.actualEnd,
+                        item.pause,
+                      )}{" "}
+                      h
+                    </Text>
+
+                    {!!item.diff && (
+                      <Text
+                        style={{
+                          marginTop: 8,
+                          color: item.diff.startsWith("+")
+                            ? "#16a34a"
+                            : item.diff.startsWith("-")
+                              ? "#dc2626"
+                              : "#6b7280",
+                          fontWeight: "900",
+                          fontSize: 15,
+                        }}
+                      >
+                        Differenz: {item.diff}
+                      </Text>
+                    )}
+                  </>
                 )}
               </View>
             ))
@@ -197,4 +480,61 @@ function formatDate(dateString: string) {
     month: "2-digit",
     year: "numeric",
   });
+}
+
+function parseTime(value: string) {
+  const [hh, mm] = value.split(":").map(Number);
+  if (
+    !Number.isFinite(hh) ||
+    !Number.isFinite(mm) ||
+    hh < 0 ||
+    hh > 23 ||
+    mm < 0 ||
+    mm > 59
+  ) {
+    return null;
+  }
+  return hh * 60 + mm;
+}
+
+function formatTime(totalMinutes: number) {
+  let mins = totalMinutes % (24 * 60);
+  if (mins < 0) mins += 24 * 60;
+
+  const hh = String(Math.floor(mins / 60)).padStart(2, "0");
+  const mm = String(mins % 60).padStart(2, "0");
+
+  return `${hh}:${mm}`;
+}
+
+function calculatePlannedEnd(startTime: string, pause: string, hours: string) {
+  const start = parseTime(startTime);
+  const pauseMin = Number((pause || "").replace(",", "."));
+  const workMin = Number((hours || "").replace(",", ".")) * 60;
+
+  if (
+    start === null ||
+    !Number.isFinite(pauseMin) ||
+    !Number.isFinite(workMin)
+  ) {
+    return "";
+  }
+
+  return formatTime(start + Math.round(pauseMin) + Math.round(workMin));
+}
+
+function calculateDiff(planned: string, actual: string) {
+  const plannedMin = parseTime(planned);
+  const actualMin = parseTime(actual);
+
+  if (plannedMin === null || actualMin === null) return "";
+
+  const d = actualMin - plannedMin;
+  const sign = d >= 0 ? "+" : "-";
+  const abs = Math.abs(d);
+
+  const hh = String(Math.floor(abs / 60)).padStart(2, "0");
+  const mm = String(abs % 60).padStart(2, "0");
+
+  return `${sign}${hh}:${mm}`;
 }
