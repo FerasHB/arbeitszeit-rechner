@@ -1,8 +1,11 @@
 # Arbeitszeit Rechner
 
-Eine mobile App zur Berechnung von Arbeitszeiten und Überstunden.
+![React Native](https://img.shields.io/badge/React%20Native-0.74-blue)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
+![Expo](https://img.shields.io/badge/Expo-Framework-black)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-Die App wurde mit **React Native, TypeScript und Expo** entwickelt und speichert Arbeitstage lokal auf dem Gerät.
+Eine mobile App zur Berechnung von Arbeitszeiten und Überstunden.
 
 ---
 
@@ -53,26 +56,19 @@ utils
 
 ---
 
-## Installation
-
-Repository klonen:
-
----
 
 ## Installation
 
-Repository klonen:
-
+```bash
 git clone https://github.com/FerasHB/arbeitszeit-rechner.git
+```
 
 In den Projektordner wechseln:
+```bash
 cd arbeitszeit-rechner
-
-Abhängigkeiten installieren:
 npm install
-
-App starten:
 npx expo start
+```
 
 ---
 
