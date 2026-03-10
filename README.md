@@ -1,50 +1,93 @@
-# Welcome to your Expo app 👋
+# Arbeitszeit Rechner
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Eine mobile App zur Berechnung von Arbeitszeiten und Überstunden.
 
-## Get started
+Die App wurde mit **React Native, TypeScript und Expo** entwickelt und speichert Arbeitstage lokal auf dem Gerät.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- Berechnung der Soll-Endzeit
+- Eingabe der tatsächlichen Endzeit
+- Überstundenberechnung
+- Speicherung von Arbeitstagen
+- History mit gespeicherten Einträgen
+- Wochenübersicht der Arbeitszeit
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Tech Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- React Native
+- TypeScript
+- Expo
+- Expo Router
+- AsyncStorage
+- Custom Hooks
+- Komponentenbasierte Architektur
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## Projektstruktur
+app
+├─ (tabs)
+│   ├─ index.tsx
+│   ├─ history.tsx
+│   └─ _layout.tsx
+│
+components
+├─ LabeledInput.tsx
+└─ ResultCard.tsx
 
-When you're ready, run:
+hooks
+├─ useWorkCalculator.ts
+└─ useWorkEntries.ts
 
-```bash
-npm run reset-project
-```
+storage
+└─ workEntries.ts
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+utils
+├─ time.ts
+└─ workCalculator.ts
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## Installation
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Repository klonen:
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## Installation
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Repository klonen:
+
+git clone https://github.com/FerasHB/arbeitszeit-rechner.git
+
+In den Projektordner wechseln:
+cd arbeitszeit-rechner
+
+Abhängigkeiten installieren:
+npm install
+
+App starten:
+npx expo start
+
+---
+
+## Autor
+
+Feras Hababa
+
+GitHub:  
+https://github.com/FerasHB
+
+LinkedIn:  
+https://www.linkedin.com/in/feras-hababa-a9227b337/
+
+---
+
+## Lizenz
+
+Dieses Projekt dient zu Lern- und Demonstrationszwecken.
