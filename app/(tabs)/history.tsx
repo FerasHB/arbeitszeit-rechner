@@ -566,11 +566,17 @@ function formatDate(dateString: string) {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
 
-  return date.toLocaleDateString("de-DE", {
+  const dayName = date.toLocaleDateString("de-DE", {
+    weekday: "short",
+  });
+
+  const datePart = date.toLocaleDateString("de-DE", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
   });
+
+  return `${dayName}, ${datePart}`;
 }
 
 function parseTime(value: string) {
