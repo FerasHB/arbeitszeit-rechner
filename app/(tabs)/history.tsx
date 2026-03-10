@@ -370,27 +370,59 @@ export default function HistoryScreen() {
                   </View>
                 ) : (
                   <>
-                    <Text style={{ color: "#d1d5db", fontSize: 15 }}>
-                      Start: {item.startTime}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 6,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontSize: 18,
+                          fontWeight: "800",
+                        }}
+                      >
+                        {item.startTime}
+                      </Text>
+
+                      <Text
+                        style={{
+                          color: "#9aa0a6",
+                          marginHorizontal: 6,
+                          fontSize: 16,
+                        }}
+                      >
+                        →
+                      </Text>
+
+                      <Text
+                        style={{
+                          color: "#fff",
+                          fontSize: 18,
+                          fontWeight: "800",
+                        }}
+                      >
+                        {item.actualEnd || item.plannedEnd}
+                      </Text>
+                    </View>
 
                     <Text
-                      style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}
+                      style={{
+                        color: "#9aa0a6",
+                        fontSize: 14,
+                        marginTop: 6,
+                      }}
                     >
-                      Ende: {item.actualEnd || item.plannedEnd}
-                    </Text>
-
-                    <Text
-                      style={{ color: "#d1d5db", fontSize: 15, marginTop: 2 }}
-                    >
-                      Pause: {item.pause} Min.
+                      Pause: {item.pause} min
                     </Text>
 
                     <Text
                       style={{
                         color: "#fff",
-                        fontSize: 15,
-                        fontWeight: "700",
+                        fontSize: 16,
+                        fontWeight: "900",
                         marginTop: 8,
                       }}
                     >
@@ -399,24 +431,23 @@ export default function HistoryScreen() {
                         item.startTime,
                         item.actualEnd,
                         item.pause,
-                      )}{" "}
-                      h
+                      )}
                     </Text>
 
                     {!!item.diff && (
                       <Text
                         style={{
-                          marginTop: 8,
+                          marginTop: 6,
+                          fontSize: 16,
+                          fontWeight: "900",
                           color: item.diff.startsWith("+")
                             ? "#16a34a"
                             : item.diff.startsWith("-")
                               ? "#dc2626"
-                              : "#6b7280",
-                          fontWeight: "900",
-                          fontSize: 15,
+                              : "#9aa0a6",
                         }}
                       >
-                        Differenz: {item.diff}
+                        {item.diff}
                       </Text>
                     )}
                   </>
