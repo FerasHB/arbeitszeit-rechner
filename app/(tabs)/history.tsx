@@ -1,8 +1,11 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LabeledInput from "../../components/LabeledInput";
+import HistorySection from "../../components/history/history-section";
+import WeeklySummaryCard from "../../components/history/weekly-summary-card";
 import {
   clearEntries,
   deleteEntry,
@@ -207,217 +210,221 @@ export default function HistoryScreen() {
         </Text>
 
         {items.map((item) => (
-          <View
+          <Swipeable
             key={item.id}
-            style={{
-              backgroundColor: "#1a1a1a",
-              padding: 14,
-              borderRadius: 16,
-              marginBottom: 12,
-              borderWidth: 1,
-              borderColor: "#2a2a2a",
-            }}
+            renderRightActions={() => renderRightActions(item.id)}
           >
             <View
               style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 8,
+                backgroundColor: "#1a1a1a",
+                padding: 14,
+                borderRadius: 16,
+                marginBottom: 12,
+                borderWidth: 1,
+                borderColor: "#2a2a2a",
               }}
             >
-              <Text
+              <View
                 style={{
-                  color: "#fff",
-                  fontWeight: "900",
-                  fontSize: 16,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 8,
                 }}
               >
-                {formatDate(item.date)}
-              </Text>
-
-              <View style={{ flexDirection: "row", gap: 8 }}>
-                <Pressable
-                  onPress={() => handleEdit(item)}
-                  style={({ pressed }) => ({
-                    backgroundColor: "#1d4ed8",
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 10,
-                    opacity: pressed ? 0.7 : 1,
-                  })}
+                <Text
+                  style={{
+                    color: "#fff",
+                    fontWeight: "900",
+                    fontSize: 16,
+                  }}
                 >
-                  <Text
-                    style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}
-                  >
-                    Bearbeiten
-                  </Text>
-                </Pressable>
+                  {formatDate(item.date)}
+                </Text>
 
-                <Pressable
-                  onPress={() => handleDelete(item.id)}
-                  style={({ pressed }) => ({
-                    backgroundColor: "#7a1f1f",
-                    paddingVertical: 6,
-                    paddingHorizontal: 10,
-                    borderRadius: 10,
-                    opacity: pressed ? 0.7 : 1,
-                  })}
-                >
-                  <Text
-                    style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}
-                  >
-                    Löschen
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {editingId === item.id ? (
-              <View style={{ marginTop: 10, gap: 10 }}>
-                <LabeledInput
-                  label="Startzeit"
-                  value={editStartTime}
-                  onChangeText={setEditStartTime}
-                  placeholder="08:30"
-                  keyboardType="numbers-and-punctuation"
-                />
-
-                <LabeledInput
-                  label="Pause"
-                  value={editPause}
-                  onChangeText={setEditPause}
-                  placeholder="30"
-                  keyboardType="number-pad"
-                />
-
-                <LabeledInput
-                  label="Tatsächliche Endzeit"
-                  value={editActualEnd}
-                  onChangeText={setEditActualEnd}
-                  placeholder="17:10"
-                  keyboardType="numbers-and-punctuation"
-                />
-
-                <View style={{ flexDirection: "row", gap: 10, marginTop: 6 }}>
+                <View style={{ flexDirection: "row", gap: 8 }}>
                   <Pressable
-                    onPress={() => handleUpdate(item)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#166534",
-                      paddingVertical: 10,
+                    onPress={() => handleEdit(item)}
+                    style={({ pressed }) => ({
+                      backgroundColor: "#1d4ed8",
+                      paddingVertical: 6,
+                      paddingHorizontal: 10,
                       borderRadius: 10,
-                      alignItems: "center",
-                    }}
+                      opacity: pressed ? 0.7 : 1,
+                    })}
                   >
-                    <Text style={{ color: "#fff", fontWeight: "800" }}>
-                      Speichern
-                    </Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => setEditingId(null)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#444",
-                      paddingVertical: 10,
-                      borderRadius: 10,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ color: "#fff", fontWeight: "800" }}>
-                      Abbrechen
+                    <Text
+                      style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}
+                    >
+                      Bearbeiten
                     </Text>
                   </Pressable>
                 </View>
               </View>
-            ) : (
-              <>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 6,
-                  }}
-                >
-                  <Text
+
+              {editingId === item.id ? (
+                <View style={{ marginTop: 10, gap: 10 }}>
+                  <LabeledInput
+                    label="Startzeit"
+                    value={editStartTime}
+                    onChangeText={setEditStartTime}
+                    placeholder="08:30"
+                    keyboardType="numbers-and-punctuation"
+                  />
+
+                  <LabeledInput
+                    label="Pause"
+                    value={editPause}
+                    onChangeText={setEditPause}
+                    placeholder="30"
+                    keyboardType="number-pad"
+                  />
+
+                  <LabeledInput
+                    label="Tatsächliche Endzeit"
+                    value={editActualEnd}
+                    onChangeText={setEditActualEnd}
+                    placeholder="17:10"
+                    keyboardType="numbers-and-punctuation"
+                  />
+
+                  <View style={{ flexDirection: "row", gap: 10, marginTop: 6 }}>
+                    <Pressable
+                      onPress={() => handleUpdate(item)}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "#166534",
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "800" }}>
+                        Speichern
+                      </Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => setEditingId(null)}
+                      style={{
+                        flex: 1,
+                        backgroundColor: "#444",
+                        paddingVertical: 10,
+                        borderRadius: 10,
+                        alignItems: "center",
+                      }}
+                    >
+                      <Text style={{ color: "#fff", fontWeight: "800" }}>
+                        Abbrechen
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ) : (
+                <>
+                  <View
                     style={{
-                      color: "#fff",
-                      fontSize: 18,
-                      fontWeight: "800",
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginTop: 6,
                     }}
                   >
-                    {item.startTime}
-                  </Text>
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 18,
+                        fontWeight: "800",
+                      }}
+                    >
+                      {item.startTime}
+                    </Text>
+
+                    <Text
+                      style={{
+                        color: "#9aa0a6",
+                        marginHorizontal: 6,
+                        fontSize: 16,
+                      }}
+                    >
+                      →
+                    </Text>
+
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontSize: 18,
+                        fontWeight: "800",
+                      }}
+                    >
+                      {item.actualEnd || item.plannedEnd}
+                    </Text>
+                  </View>
 
                   <Text
                     style={{
                       color: "#9aa0a6",
-                      marginHorizontal: 6,
-                      fontSize: 16,
+                      fontSize: 14,
+                      marginTop: 6,
                     }}
                   >
-                    →
+                    Pause: {item.pause} min
                   </Text>
 
                   <Text
                     style={{
                       color: "#fff",
-                      fontSize: 18,
-                      fontWeight: "800",
-                    }}
-                  >
-                    {item.actualEnd || item.plannedEnd}
-                  </Text>
-                </View>
-
-                <Text
-                  style={{
-                    color: "#9aa0a6",
-                    fontSize: 14,
-                    marginTop: 6,
-                  }}
-                >
-                  Pause: {item.pause} min
-                </Text>
-
-                <Text
-                  style={{
-                    color: "#fff",
-                    fontSize: 16,
-                    fontWeight: "900",
-                    marginTop: 8,
-                  }}
-                >
-                  Gearbeitet:{" "}
-                  {calculateWorkedHours(
-                    item.startTime,
-                    item.actualEnd,
-                    item.pause,
-                  )}
-                </Text>
-
-                {!!item.diff && (
-                  <Text
-                    style={{
-                      marginTop: 6,
                       fontSize: 16,
                       fontWeight: "900",
-                      color: item.diff.startsWith("+")
-                        ? "#16a34a"
-                        : item.diff.startsWith("-")
-                          ? "#dc2626"
-                          : "#9aa0a6",
+                      marginTop: 8,
                     }}
                   >
-                    {item.diff}
+                    Gearbeitet:{" "}
+                    {calculateWorkedHours(
+                      item.startTime,
+                      item.actualEnd,
+                      item.pause,
+                    )}
                   </Text>
-                )}
-              </>
-            )}
-          </View>
+
+                  {!!item.diff && (
+                    <Text
+                      style={{
+                        marginTop: 6,
+                        fontSize: 16,
+                        fontWeight: "900",
+                        color: item.diff.startsWith("+")
+                          ? "#16a34a"
+                          : item.diff.startsWith("-")
+                            ? "#dc2626"
+                            : "#9aa0a6",
+                      }}
+                    >
+                      {item.diff}
+                    </Text>
+                  )}
+                </>
+              )}
+            </View>
+          </Swipeable>
         ))}
       </View>
+    );
+  };
+  const renderRightActions = (id: string) => {
+    return (
+      <Pressable
+        onPress={() => handleDelete(id)}
+        style={{
+          backgroundColor: "#dc2626",
+          justifyContent: "center",
+          alignItems: "center",
+          width: 90,
+          borderRadius: 16,
+          marginBottom: 12,
+        }}
+      >
+        <Text style={{ color: "#fff", fontWeight: "900" }}>Löschen</Text>
+      </Pressable>
     );
   };
   return (
@@ -433,52 +440,18 @@ export default function HistoryScreen() {
         >
           History
         </Text>
-        <View
-          style={{
-            backgroundColor: "#1a1a1a",
-            borderRadius: 16,
-            padding: 14,
-            marginBottom: 16,
-            borderWidth: 1,
-            borderColor: "#2a2a2a",
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontSize: 16,
-              fontWeight: "900",
-              marginBottom: 10,
-            }}
-          >
-            Diese Woche
-          </Text>
-
-          <Text style={{ color: "#d1d5db", fontSize: 14 }}>
-            Einträge: {weeklyEntries.length}
-          </Text>
-
-          <Text style={{ color: "#d1d5db", fontSize: 14, marginTop: 4 }}>
-            Gearbeitet: {formatMinutesToHHMM(weeklyWorkedMinutes)} h
-          </Text>
-
-          <Text
-            style={{
-              fontSize: 14,
-              fontWeight: "800",
-              marginTop: 4,
-              color:
-                weeklyDiffMinutes > 0
-                  ? "#16a34a"
-                  : weeklyDiffMinutes < 0
-                    ? "#dc2626"
-                    : "#9aa0a6",
-            }}
-          >
-            Überstunden: {weeklyDiffMinutes > 0 ? "+" : ""}
-            {formatMinutesToHHMM(weeklyDiffMinutes)}
-          </Text>
-        </View>
+        <WeeklySummaryCard
+          weeklyEntriesCount={weeklyEntries.length}
+          weeklyWorked={formatMinutesToHHMM(weeklyWorkedMinutes)}
+          weeklyDiff={`${weeklyDiffMinutes > 0 ? "+" : ""}${formatMinutesToHHMM(weeklyDiffMinutes)}`}
+          weeklyDiffColor={
+            weeklyDiffMinutes > 0
+              ? "#16a34a"
+              : weeklyDiffMinutes < 0
+                ? "#dc2626"
+                : "#9aa0a6"
+          }
+        />
         <Text
           style={{
             color: "#9aa0a6",
@@ -510,9 +483,59 @@ export default function HistoryScreen() {
             <Text style={{ color: "#9aa0a6" }}>Noch keine Einträge.</Text>
           ) : (
             <>
-              {renderSection("Diese Woche", groupedEntries.thisWeek)}
-              {renderSection("Letzte Woche", groupedEntries.lastWeek)}
-              {renderSection("Älter", groupedEntries.older)}
+              <HistorySection
+                title="Diese Woche"
+                items={groupedEntries.thisWeek}
+                editingId={editingId}
+                editStartTime={editStartTime}
+                editPause={editPause}
+                editActualEnd={editActualEnd}
+                setEditStartTime={setEditStartTime}
+                setEditPause={setEditPause}
+                setEditActualEnd={setEditActualEnd}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+                onCancelEdit={() => setEditingId(null)}
+                formatDate={formatDate}
+                calculateWorkedHours={calculateWorkedHours}
+              />
+
+              <HistorySection
+                title="Letzte Woche"
+                items={groupedEntries.lastWeek}
+                editingId={editingId}
+                editStartTime={editStartTime}
+                editPause={editPause}
+                editActualEnd={editActualEnd}
+                setEditStartTime={setEditStartTime}
+                setEditPause={setEditPause}
+                setEditActualEnd={setEditActualEnd}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+                onCancelEdit={() => setEditingId(null)}
+                formatDate={formatDate}
+                calculateWorkedHours={calculateWorkedHours}
+              />
+
+              <HistorySection
+                title="Älter"
+                items={groupedEntries.older}
+                editingId={editingId}
+                editStartTime={editStartTime}
+                editPause={editPause}
+                editActualEnd={editActualEnd}
+                setEditStartTime={setEditStartTime}
+                setEditPause={setEditPause}
+                setEditActualEnd={setEditActualEnd}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onUpdate={handleUpdate}
+                onCancelEdit={() => setEditingId(null)}
+                formatDate={formatDate}
+                calculateWorkedHours={calculateWorkedHours}
+              />
             </>
           )}
         </View>

@@ -13,7 +13,7 @@ export default function HomeScreen() {
   const [hours, setHours] = useState("8");
   const [actualEnd, setActualEnd] = useState("");
 
-  const { entries, saveEntry } = useWorkEntries();
+  const { saveEntry } = useWorkEntries();
   const { endTime, diff, calculate } = useWorkCalculator();
 
   const handleCalculate = () => {
