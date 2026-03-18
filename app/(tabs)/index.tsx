@@ -9,7 +9,7 @@ import { useWorkEntries } from "../../hooks/useWorkEntries";
 
 export default function HomeScreen() {
   const [startTime, setStartTime] = useState("08:30");
-  const [pause, setPause] = useState("30");
+  const [pause, setPause] = useState("5");
   const [hours, setHours] = useState("8");
   const [actualEnd, setActualEnd] = useState("");
 
@@ -45,13 +45,13 @@ export default function HomeScreen() {
       Alert.alert("Fehler", "Konnte nicht speichern.");
     }
   };
-  const pauseOptions = [
-    { label: "0 Minuten", value: "0" },
-    { label: "15 Minuten", value: "15" },
-    { label: "30 Minuten", value: "30" },
-    { label: "45 Minuten", value: "45" },
-    { label: "60 Minuten", value: "60" },
-  ];
+  const pauseOptions = Array.from({ length: 25 }, (_, i) => {
+    const value = i * 5;
+    return {
+      label: `${value} Minuten`,
+      value: value.toString(),
+    };
+  });
 
   const hourOptions = [
     { label: "6,0 Stunden", value: "6" },
