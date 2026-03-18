@@ -1,18 +1,25 @@
 import { useState } from "react";
 import { Alert, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AppPickerField from "../../components/AppPickerField";
 import LabeledInput from "../../components/LabeledInput";
-import LabeledPicker from "../../components/LabeledPicker";
+import ModalPicker from "../../components/modal-picker";
 import ResultCard from "../../components/ResultCard";
 import { useWorkCalculator } from "../../hooks/useWorkCalculator";
 import { useWorkEntries } from "../../hooks/useWorkEntries";
+
+console.log("PickerField =", AppPickerField);
+console.log("ModalPicker =", ModalPicker);
 
 export default function HomeScreen() {
   const [startTime, setStartTime] = useState("08:30");
   const [pause, setPause] = useState("5");
   const [hours, setHours] = useState("8");
   const [actualEnd, setActualEnd] = useState("");
-
+  const [pauseModalVisible, setPauseModalVisible] = useState(false);
+  const [hoursModalVisible, setHoursModalVisible] = useState(false);
+  const [startTimeModalVisible, setStartTimeModalVisible] = useState(false);
+  const [actualEndModalVisible, setActualEndModalVisible] = useState(false);
   const { saveEntry } = useWorkEntries();
   const { endTime, diff, calculate } = useWorkCalculator();
 
@@ -53,17 +60,24 @@ export default function HomeScreen() {
     };
   });
 
-  const hourOptions = [
-    { label: "6,0 Stunden", value: "6" },
-    { label: "6,5 Stunden", value: "6.5" },
-    { label: "7,0 Stunden", value: "7" },
-    { label: "7,5 Stunden", value: "7.5" },
-    { label: "8,0 Stunden", value: "8" },
-    { label: "8,5 Stunden", value: "8.5" },
-    { label: "9,0 Stunden", value: "9" },
-    { label: "9,5 Stunden", value: "9.5" },
-    { label: "10,0 Stunden", value: "10" },
-  ];
+  const hourOptions = Array.from({ length: 13 }, (_, i) => {
+    const value = 4 + i * 0.5;
+    return {
+      label: `${value.toFixed(1).replace(".", ",")} Stunden`,
+      value: value.toString(),
+    };
+  });
+
+  const timeOptions = Array.from({ length: 24 * 12 }, (_, i) => {
+    const totalMinutes = i * 5;
+    const hh = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+    const mm = String(totalMinutes % 60).padStart(2, "0");
+
+    return {
+      label: `${hh}:${mm}`,
+      value: `${hh}:${mm}`,
+    };
+  });
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#040303", padding: 14 }}>
       <View style={{ flex: 1 }}>
@@ -93,18 +107,16 @@ export default function HomeScreen() {
             keyboardType="numbers-and-punctuation"
           />
 
-          <LabeledPicker
+          <AppPickerField
             label="Pause"
-            selectedValue={pause}
-            onValueChange={setPause}
-            options={pauseOptions}
+            valueLabel={`${pause} Minuten`}
+            onPress={() => setPauseModalVisible(true)}
           />
 
-          <LabeledPicker
+          <AppPickerField
             label="Zielstunden"
-            selectedValue={hours}
-            onValueChange={setHours}
-            options={hourOptions}
+            valueLabel={`${hours.replace(".", ",")} Stunden`}
+            onPress={() => setHoursModalVisible(true)}
           />
 
           <LabeledInput
@@ -151,6 +163,29 @@ export default function HomeScreen() {
 
         <ResultCard endTime={endTime} actualEnd={actualEnd} diff={diff} />
       </View>
+      <ModalPicker
+        visible={pauseModalVisible}
+        title="Pause wählen"
+        selectedValue={pause}
+        options={pauseOptions}
+        onClose={() => setPauseModalVisible(false)}
+        onConfirm={(value) => {
+          setPause(value);
+          setPauseModalVisible(false);
+        }}
+      />
+
+      <ModalPicker
+        visible={hoursModalVisible}
+        title="Zielstunden wählen"
+        selectedValue={hours}
+        options={hourOptions}
+        onClose={() => setHoursModalVisible(false)}
+        onConfirm={(value) => {
+          setHours(value);
+          setHoursModalVisible(false);
+        }}
+      />
     </SafeAreaView>
   );
 }

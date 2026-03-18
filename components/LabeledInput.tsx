@@ -59,11 +59,11 @@ export default function LabeledInput({
         <InputAccessoryView nativeID={accessoryId}>
           <View
             style={{
-              backgroundColor: "#f5f5f5",
+              backgroundColor: "#020101",
               padding: 10,
               alignItems: "flex-end",
               borderTopWidth: 1,
-              borderTopColor: "#ddd",
+              borderTopColor: "#020202",
             }}
           >
             <Pressable
@@ -71,7 +71,7 @@ export default function LabeledInput({
               style={{
                 paddingVertical: 8,
                 paddingHorizontal: 14,
-                backgroundColor: "#000",
+                backgroundColor: "#166534",
                 borderRadius: 10,
               }}
             >
