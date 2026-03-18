@@ -30,7 +30,7 @@ export default function LabeledInput({
 
   return (
     <View style={{ gap: 8 }}>
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#222" }}>
+      <Text style={{ fontSize: 13, fontWeight: "700", color: "#fcfcfc" }}>
         {label}
       </Text>
 
@@ -44,12 +44,14 @@ export default function LabeledInput({
         onSubmitEditing={Keyboard.dismiss}
         inputAccessoryViewID={Platform.OS === "ios" ? accessoryId : undefined}
         style={{
-          backgroundColor: "#f5f5f5",
-          borderRadius: 14,
-          paddingVertical: 12,
+          backgroundColor: "#1a1a1a",
+          borderRadius: 10,
+          paddingVertical: 10,
           paddingHorizontal: 14,
           fontSize: 16,
-          color: "#000",
+          color: "#fff",
+          borderWidth: 1,
+          borderColor: "#2a2a2a",
         }}
       />
 

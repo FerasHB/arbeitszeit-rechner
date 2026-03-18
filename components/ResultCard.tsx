@@ -23,33 +23,35 @@ export default function ResultCard({ endTime, actualEnd, diff }: Props) {
   return (
     <View
       style={{
-        marginTop: 20,
-        backgroundColor: "#fff",
+        marginTop: 14,
+        backgroundColor: "#111111",
         borderRadius: 20,
-        padding: 20,
+        padding: 16,
         alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#1f1f1f",
       }}
     >
-      <Text style={{ color: "#555", fontWeight: "700" }}>Soll-Endzeit</Text>
+      <Text style={{ color: "#9aa0a6", fontWeight: "700" }}>Soll-Endzeit</Text>
 
       <Text
         style={{
           marginTop: 8,
-          fontSize: 36,
+          fontSize: 30,
           fontWeight: "900",
-          color: "#000",
+          color: "#fff",
         }}
       >
         {endTime || "--:--"}
       </Text>
 
       {showDiff && (
-        <View style={{ marginTop: 14, alignItems: "center", gap: 6 }}>
+        <View style={{ marginTop: 8, alignItems: "center", gap: 6 }}>
           <Text style={{ color: "#555", fontWeight: "700" }}>
             Tatsächlich: {actualEnd}
           </Text>
 
-          <Text style={{ fontSize: 18, fontWeight: "900", color: diffColor }}>
+          <Text style={{ fontSize: 15, fontWeight: "900", color: diffColor }}>
             Differenz: {diff}
           </Text>
         </View>

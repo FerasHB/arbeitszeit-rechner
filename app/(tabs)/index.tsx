@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
 import LabeledInput from "../../components/LabeledInput";
+import LabeledPicker from "../../components/LabeledPicker";
 import ResultCard from "../../components/ResultCard";
 import { useWorkCalculator } from "../../hooks/useWorkCalculator";
 import { useWorkEntries } from "../../hooks/useWorkEntries";
@@ -45,21 +45,44 @@ export default function HomeScreen() {
       Alert.alert("Fehler", "Konnte nicht speichern.");
     }
   };
+  const pauseOptions = [
+    { label: "0 Minuten", value: "0" },
+    { label: "15 Minuten", value: "15" },
+    { label: "30 Minuten", value: "30" },
+    { label: "45 Minuten", value: "45" },
+    { label: "60 Minuten", value: "60" },
+  ];
 
+  const hourOptions = [
+    { label: "6,0 Stunden", value: "6" },
+    { label: "6,5 Stunden", value: "6.5" },
+    { label: "7,0 Stunden", value: "7" },
+    { label: "7,5 Stunden", value: "7.5" },
+    { label: "8,0 Stunden", value: "8" },
+    { label: "8,5 Stunden", value: "8.5" },
+    { label: "9,0 Stunden", value: "9" },
+    { label: "9,5 Stunden", value: "9.5" },
+    { label: "10,0 Stunden", value: "10" },
+  ];
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#040303" }}>
-      <ScrollView style={{ paddingHorizontal: 20, paddingTop: 20 }}>
-        <Text style={{ fontSize: 28, fontWeight: "900", color: "#fff" }}>
-          Arbeitszeit Rechner
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#040303", padding: 14 }}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 24, fontWeight: "900", color: "#fff" }}>
+          Arbeitszeit Tracker
         </Text>
 
+        <Text style={{ color: "#9aa0a6", marginTop: 2, fontSize: 13 }}>
+          Berechne deine Arbeitszeit und speichere deine Tage
+        </Text>
         <View
           style={{
-            marginTop: 18,
-            backgroundColor: "#fff",
+            marginTop: 12,
+            backgroundColor: "#090303",
             borderRadius: 20,
-            padding: 18,
-            gap: 16,
+            padding: 14,
+            gap: 12,
+            borderWidth: 1,
+            borderColor: "#1f1f1f",
           }}
         >
           <LabeledInput
@@ -70,20 +93,18 @@ export default function HomeScreen() {
             keyboardType="numbers-and-punctuation"
           />
 
-          <LabeledInput
-            label="Pause (Minuten)"
-            value={pause}
-            onChangeText={setPause}
-            placeholder="30"
-            keyboardType="number-pad"
+          <LabeledPicker
+            label="Pause"
+            selectedValue={pause}
+            onValueChange={setPause}
+            options={pauseOptions}
           />
 
-          <LabeledInput
+          <LabeledPicker
             label="Zielstunden"
-            value={hours}
-            onChangeText={setHours}
-            placeholder="8 oder 8,5"
-            keyboardType="numbers-and-punctuation"
+            selectedValue={hours}
+            onValueChange={setHours}
+            options={hourOptions}
           />
 
           <LabeledInput
@@ -98,11 +119,11 @@ export default function HomeScreen() {
             onPress={handleCalculate}
             style={({ pressed }) => ({
               marginTop: 8,
-              backgroundColor: "#000",
-              paddingVertical: 14,
+              backgroundColor: "#490808",
+              paddingVertical: 12,
               borderRadius: 14,
               alignItems: "center",
-              opacity: pressed ? 0.6 : 1,
+              opacity: pressed ? 0.85 : 1,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             })}
           >
@@ -114,11 +135,11 @@ export default function HomeScreen() {
           <Pressable
             onPress={handleSave}
             style={({ pressed }) => ({
-              backgroundColor: "#1f7a1f",
-              paddingVertical: 14,
+              backgroundColor: "#166534",
+              paddingVertical: 12,
               borderRadius: 14,
               alignItems: "center",
-              opacity: pressed ? 0.6 : 1,
+              opacity: pressed ? 0.85 : 1,
               transform: [{ scale: pressed ? 0.98 : 1 }],
             })}
           >
@@ -129,7 +150,7 @@ export default function HomeScreen() {
         </View>
 
         <ResultCard endTime={endTime} actualEnd={actualEnd} diff={diff} />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
