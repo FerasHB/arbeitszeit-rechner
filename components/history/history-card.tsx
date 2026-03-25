@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
-import { Colors, Layout } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 import { WorkEntry } from "../../storage/workEntries";
 import LabeledInput from "../LabeledInput";
 
@@ -52,6 +52,12 @@ export default function HistoryCard({
         ? Colors.danger
         : Colors.textMuted;
 
+  const workedHours = calculateWorkedHours(
+    item.startTime,
+    item.actualEnd,
+    item.pause,
+  );
+
   const renderRightActions = () => {
     return (
       <View style={styles.swipeWrapper}>
@@ -74,7 +80,7 @@ export default function HistoryCard({
       renderRightActions={renderRightActions}
       overshootRight={false}
       friction={2}
-      rightThreshold={40}
+      rightThreshold={36}
     >
       <View style={styles.card}>
         <View style={styles.headerRow}>
@@ -87,7 +93,7 @@ export default function HistoryCard({
               pressed && styles.buttonPressed,
             ]}
           >
-            <Text style={styles.editEmoji}>✏️</Text>
+            <Text style={styles.editEmoji}>⚙️</Text>
           </Pressable>
         </View>
 
@@ -149,11 +155,8 @@ export default function HistoryCard({
               </Text>
             </View>
 
-            <Text style={styles.pauseText}>Pause: {item.pause} Min.</Text>
-
-            <Text style={styles.workedText}>
-              Gearbeitet:{" "}
-              {calculateWorkedHours(item.startTime, item.actualEnd, item.pause)}
+            <Text style={styles.metaText}>
+              Pause {item.pause} Min. · {workedHours} h
             </Text>
 
             {!!item.diff && (
@@ -171,9 +174,10 @@ export default function HistoryCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.card,
-    padding: 16,
-    borderRadius: Layout.radiusBig,
-    marginBottom: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 16,
+    marginBottom: 8,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -181,45 +185,45 @@ const styles = StyleSheet.create({
   swipeWrapper: {
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
-    marginLeft: 10,
+    marginBottom: 8,
+    marginLeft: 8,
   },
   deleteSwipeButton: {
-    width: 96,
-    minHeight: 126,
+    width: 82,
+    minHeight: 84,
     backgroundColor: "rgba(239,68,68,0.14)",
     borderWidth: 1,
     borderColor: "rgba(239,68,68,0.28)",
-    borderRadius: 20,
+    borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    gap: 6,
+    gap: 4,
   },
   deleteSwipeEmoji: {
-    fontSize: 20,
+    fontSize: 18,
   },
   deleteSwipeText: {
     color: Colors.danger,
     fontWeight: "900",
-    fontSize: 13,
+    fontSize: 12,
   },
 
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 4,
   },
   date: {
     color: Colors.text,
-    fontWeight: "900",
-    fontSize: 16,
+    fontWeight: "800",
+    fontSize: 13,
   },
 
   editButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
     backgroundColor: Colors.card2,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -227,38 +231,67 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   editEmoji: {
-    fontSize: 16,
+    fontSize: 14,
+  },
+
+  infoBox: {
+    gap: 2,
+  },
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 2,
+  },
+  timeText: {
+    color: Colors.text,
+    fontSize: 15,
+    fontWeight: "800",
+  },
+  arrow: {
+    color: Colors.textMuted,
+    marginHorizontal: 6,
+    fontSize: 13,
+  },
+  metaText: {
+    color: Colors.textSoft,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  diffText: {
+    marginTop: 4,
+    fontSize: 13,
+    fontWeight: "900",
   },
 
   editBox: {
     marginTop: 8,
-    gap: 12,
+    gap: 10,
   },
   editButtonsRow: {
     flexDirection: "row",
-    gap: 10,
-    marginTop: 4,
+    gap: 8,
+    marginTop: 2,
   },
 
   saveButton: {
     flex: 1,
     backgroundColor: Colors.accent,
-    minHeight: 48,
-    borderRadius: 16,
+    minHeight: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
   },
   saveButtonText: {
     color: "#111",
     fontWeight: "900",
-    fontSize: 14,
+    fontSize: 13,
   },
 
   cancelButton: {
     flex: 1,
     backgroundColor: Colors.card2,
-    minHeight: 48,
-    borderRadius: 16,
+    minHeight: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -267,42 +300,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     color: Colors.text,
     fontWeight: "800",
-    fontSize: 14,
-  },
-
-  infoBox: {
-    marginTop: 2,
-  },
-  timeRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-  timeText: {
-    color: Colors.text,
-    fontSize: 18,
-    fontWeight: "800",
-  },
-  arrow: {
-    color: Colors.textMuted,
-    marginHorizontal: 8,
-    fontSize: 16,
-  },
-  pauseText: {
-    color: Colors.textSoft,
-    fontSize: 14,
-    marginTop: 8,
-  },
-  workedText: {
-    color: Colors.text,
-    fontSize: 16,
-    fontWeight: "900",
-    marginTop: 8,
-  },
-  diffText: {
-    marginTop: 6,
-    fontSize: 16,
-    fontWeight: "900",
+    fontSize: 13,
   },
 
   buttonPressed: {

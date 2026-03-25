@@ -21,78 +21,40 @@ import {
   type WorkEntry,
 } from "../../storage/workEntries";
 
-// ─── Hilfsfunktionen: Datum & Woche ──────────────────────────────────────────
+// ─── Hilfsfunktionen: Monat ──────────────────────────────────────────────────
 
-// Gibt Start (Montag) und Ende (Sonntag) der aktuellen Woche zurück
-function getWeekRange(date = new Date()) {
-  const d = new Date(date);
-  const day = d.getDay() === 0 ? 7 : d.getDay(); // Sonntag (0) → 7 (ISO-Woche)
-  d.setHours(0, 0, 0, 0);
-
-  const start = new Date(d);
-  start.setDate(d.getDate() - day + 1); // Montag
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6); // Sonntag
-
-  return { start, end };
+function isSameMonth(date: Date, selected: Date) {
+  return (
+    date.getFullYear() === selected.getFullYear() &&
+    date.getMonth() === selected.getMonth()
+  );
 }
 
-// Gibt den Montag der Woche zurück, in der `date` liegt
-function getStartOfWeek(date: Date) {
-  const d = new Date(date);
-  const day = d.getDay() === 0 ? 7 : d.getDay();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - day + 1);
-  return d;
-}
-
-// Prüft ob zwei Datumsangaben in derselben Kalenderwoche liegen
-function isSameWeek(dateA: Date, dateB: Date) {
-  return getStartOfWeek(dateA).getTime() === getStartOfWeek(dateB).getTime();
-}
-
-// Sortiert Einträge in drei Gruppen: diese Woche, letzte Woche, älter
-function groupEntriesByRelativeWeek(entries: WorkEntry[]) {
-  const now = new Date();
-  const currentWeekStart = getStartOfWeek(now);
-
-  const lastWeekStart = new Date(currentWeekStart);
-  lastWeekStart.setDate(lastWeekStart.getDate() - 7);
-
-  const thisWeek: WorkEntry[] = [];
-  const lastWeek: WorkEntry[] = [];
-  const older: WorkEntry[] = [];
-
-  entries.forEach((item) => {
-    const date = new Date(item.date);
-
-    // Ungültiges Datum → sicherheitshalber in "Älter" einsortieren
-    if (Number.isNaN(date.getTime())) {
-      older.push(item);
-      return;
-    }
-
-    if (isSameWeek(date, now)) {
-      thisWeek.push(item);
-      return;
-    }
-
-    if (getStartOfWeek(date).getTime() === lastWeekStart.getTime()) {
-      lastWeek.push(item);
-      return;
-    }
-
-    older.push(item);
+function formatMonthLabel(date: Date) {
+  return date.toLocaleDateString("de-DE", {
+    month: "long",
+    year: "numeric",
   });
+}
 
-  return { thisWeek, lastWeek, older };
+function goToPreviousMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+}
+
+function goToNextMonth(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+}
+
+function isCurrentMonth(date: Date) {
+  const now = new Date();
+  return (
+    date.getFullYear() === now.getFullYear() &&
+    date.getMonth() === now.getMonth()
+  );
 }
 
 // ─── Hilfsfunktionen: Zeit & Minuten ─────────────────────────────────────────
 
-// Wandelt einen HH:MM-String (mit optionalem Vorzeichen) in Minuten um
-// z.B. "+01:30" → 90, "-00:15" → -15
 function sumMinutesFromHHMM(value?: string) {
   if (!value || value === "--:--") return 0;
   const match = /^([+-]?)(\d{2}):(\d{2})$/.exec(value.trim());
@@ -105,8 +67,6 @@ function sumMinutesFromHHMM(value?: string) {
   return sign * (hh * 60 + mm);
 }
 
-// Wandelt Gesamtminuten in einen HH:MM-String mit Vorzeichen um
-// z.B. -90 → "-01:30"
 function formatMinutesToHHMM(total: number) {
   const sign = total < 0 ? "-" : "";
   const abs = Math.abs(total);
@@ -115,7 +75,6 @@ function formatMinutesToHHMM(total: number) {
   return `${sign}${hh}:${mm}`;
 }
 
-// Parst "HH:MM" → Minuten seit Mitternacht, oder null bei ungültiger Eingabe
 function parseTime(value: string) {
   const [hh, mm] = value.split(":").map(Number);
   if (
@@ -131,10 +90,9 @@ function parseTime(value: string) {
   return hh * 60 + mm;
 }
 
-// Wandelt Minuten seit Mitternacht in "HH:MM" um (mit Übernacht-Handling)
 function formatTime(totalMinutes: number) {
   let mins = totalMinutes % (24 * 60);
-  if (mins < 0) mins += 24 * 60; // Negativwert → nächster Tag
+  if (mins < 0) mins += 24 * 60;
 
   const hh = String(Math.floor(mins / 60)).padStart(2, "0");
   const mm = String(mins % 60).padStart(2, "0");
@@ -142,7 +100,6 @@ function formatTime(totalMinutes: number) {
   return `${hh}:${mm}`;
 }
 
-// Berechnet die geplante Endzeit aus Startzeit + Pause + Zielstunden
 function calculatePlannedEnd(startTime: string, pause: string, hours: string) {
   const start = parseTime(startTime);
   const pauseMin = Number((pause || "").replace(",", "."));
@@ -159,8 +116,6 @@ function calculatePlannedEnd(startTime: string, pause: string, hours: string) {
   return formatTime(start + Math.round(pauseMin) + Math.round(workMin));
 }
 
-// Berechnet die Differenz zwischen tatsächlicher und geplanter Endzeit
-// z.B. geplant 17:00, tatsächlich 17:15 → "+00:15"
 function calculateDiff(planned: string, actual: string) {
   const plannedMin = parseTime(planned);
   const actualMin = parseTime(actual);
@@ -177,8 +132,6 @@ function calculateDiff(planned: string, actual: string) {
   return `${sign}${hh}:${mm}`;
 }
 
-// Berechnet tatsächlich gearbeitete Zeit (End - Start - Pause)
-// Gibt "--:--" zurück wenn keine tatsächliche Endzeit vorhanden
 function calculateWorkedHours(
   startTime: string,
   actualEnd?: string,
@@ -195,7 +148,7 @@ function calculateWorkedHours(
   }
 
   let total = end - start - Math.round(pauseMin);
-  if (total < 0) total += 24 * 60; // Nachtschicht-Handling
+  if (total < 0) total += 24 * 60;
 
   const hh = String(Math.floor(total / 60)).padStart(2, "0");
   const mm = String(total % 60).padStart(2, "0");
@@ -203,7 +156,6 @@ function calculateWorkedHours(
   return `${hh}:${mm}`;
 }
 
-// Formatiert ein ISO-Datum (YYYY-MM-DD) in deutsches Format (DD.MM.YYYY)
 function formatDate(dateString: string) {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return dateString;
@@ -218,63 +170,54 @@ function formatDate(dateString: string) {
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function HistoryScreen() {
-  // ─── Zustände ──────────────────────────────────────────────────────────────
   const [entries, setEntries] = useState<WorkEntry[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
-  // Bearbeitungs-Zustand: welcher Eintrag wird gerade editiert?
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editStartTime, setEditStartTime] = useState("");
   const [editPause, setEditPause] = useState("");
   const [editActualEnd, setEditActualEnd] = useState("");
 
-  // Einträge aus dem Speicher laden
   const refresh = async () => {
     const list = await loadEntries();
     setEntries(list);
   };
 
-  // Neu laden sobald der Tab in den Fokus kommt (z.B. nach Speichern im HomeScreen)
   useFocusEffect(
     useCallback(() => {
       refresh();
     }, []),
   );
 
-  // ─── Berechnungen (gecacht mit useMemo) ────────────────────────────────────
+  const monthlyEntries = useMemo(() => {
+    return entries.filter((item) => {
+      const date = new Date(item.date);
+      if (Number.isNaN(date.getTime())) return false;
+      return isSameMonth(date, selectedMonth);
+    });
+  }, [entries, selectedMonth]);
 
-  // Einträge in Gruppen aufteilen — nur neu berechnen wenn sich entries ändert
-  const groupedEntries = useMemo(
-    () => groupEntriesByRelativeWeek(entries),
-    [entries],
-  );
+  const monthlyWorkedMinutes = useMemo(() => {
+    return monthlyEntries.reduce((sum, item) => {
+      const worked = calculateWorkedHours(
+        item.startTime,
+        item.actualEnd,
+        item.pause,
+      );
+      return sum + sumMinutesFromHHMM(worked);
+    }, 0);
+  }, [monthlyEntries]);
 
-  // Nur Einträge der aktuellen Woche für die Wochenübersicht
-  const weeklyEntries = entries.filter((item) => {
-    const date = new Date(item.date);
-    if (Number.isNaN(date.getTime())) return false;
-    const { start, end } = getWeekRange();
-    date.setHours(0, 0, 0, 0);
-    return date >= start && date <= end;
-  });
+  const monthlyDiffMinutes = useMemo(() => {
+    return monthlyEntries.reduce((sum, item) => {
+      return sum + sumMinutesFromHHMM(item.diff);
+    }, 0);
+  }, [monthlyEntries]);
 
-  // Gesamte gearbeitete Minuten dieser Woche
-  const weeklyWorkedMinutes = weeklyEntries.reduce((sum, item) => {
-    const worked = calculateWorkedHours(
-      item.startTime,
-      item.actualEnd,
-      item.pause,
-    );
-    return sum + sumMinutesFromHHMM(worked);
-  }, 0);
+  const sortedMonthlyEntries = useMemo(() => {
+    return [...monthlyEntries].sort((a, b) => b.date.localeCompare(a.date));
+  }, [monthlyEntries]);
 
-  // Gesamte Über-/Unterstunden dieser Woche (kann negativ sein)
-  const weeklyDiffMinutes = weeklyEntries.reduce((sum, item) => {
-    return sum + sumMinutesFromHHMM(item.diff);
-  }, 0);
-
-  // ─── Event Handler ─────────────────────────────────────────────────────────
-
-  // Bearbeitungsmodus für einen Eintrag starten
   const handleEdit = (item: WorkEntry) => {
     setEditingId(item.id);
     setEditStartTime(item.startTime);
@@ -282,12 +225,11 @@ export default function HistoryScreen() {
     setEditActualEnd(item.actualEnd || "");
   };
 
-  // Geänderten Eintrag speichern und neu berechnen
   const handleUpdate = async (item: WorkEntry) => {
     const plannedEnd = calculatePlannedEnd(
       editStartTime,
       editPause,
-      item.hours, // Zielstunden bleiben unverändert
+      item.hours,
     );
 
     const updatedItem: WorkEntry = {
@@ -296,7 +238,6 @@ export default function HistoryScreen() {
       pause: editPause,
       actualEnd: editActualEnd.trim() ? editActualEnd : undefined,
       plannedEnd,
-      // Differenz nur setzen wenn tatsächliche Endzeit vorhanden
       diff: editActualEnd.trim()
         ? calculateDiff(plannedEnd, editActualEnd)
         : "",
@@ -304,10 +245,9 @@ export default function HistoryScreen() {
 
     const updated = await updateEntry(updatedItem);
     setEntries(updated);
-    setEditingId(null); // Bearbeitungsmodus beenden
+    setEditingId(null);
   };
 
-  // Einzelnen Eintrag mit Bestätigung löschen
   const handleDelete = async (id: string) => {
     Alert.alert(
       "Eintrag löschen",
@@ -326,7 +266,6 @@ export default function HistoryScreen() {
     );
   };
 
-  // Alle Einträge mit Bestätigung löschen
   const handleClear = async () => {
     Alert.alert("Alle löschen", "Willst du wirklich alle Einträge löschen?", [
       { text: "Abbrechen", style: "cancel" },
@@ -335,10 +274,15 @@ export default function HistoryScreen() {
         style: "destructive",
         onPress: async () => {
           await clearEntries();
-          refresh(); // Liste nach dem Löschen aktualisieren
+          refresh();
         },
       },
     ]);
+  };
+
+  const handleNextMonth = () => {
+    if (isCurrentMonth(selectedMonth)) return;
+    setSelectedMonth((prev) => goToNextMonth(prev));
   };
 
   return (
@@ -349,7 +293,6 @@ export default function HistoryScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* ── Status-Badge ── */}
         <View style={styles.badge}>
           <View style={styles.badgeDot} />
           <Text style={styles.badgeText}>Verlauf & Übersicht</Text>
@@ -357,38 +300,60 @@ export default function HistoryScreen() {
 
         <Text style={styles.title}>Deine Zeit{"\n"}im Blick.</Text>
         <Text style={styles.subtitle}>
-          Sieh deine letzten Einträge, bearbeite Tage und behalte deine Woche
+          Wähle einen Monat, prüfe Gesamtstunden und behalte deine Einträge
           schnell im Überblick.
         </Text>
 
-        {/* ── Wochenübersicht-Karte ── */}
+        {/* ── Monatsnavigation ── */}
+        <View style={styles.monthNav}>
+          <Pressable
+            onPress={() => setSelectedMonth((prev) => goToPreviousMonth(prev))}
+            style={({ pressed }) => [
+              styles.monthButton,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.monthButtonText}>←</Text>
+          </Pressable>
+
+          <Text style={styles.monthLabel}>
+            {formatMonthLabel(selectedMonth)}
+          </Text>
+
+          <Pressable
+            onPress={handleNextMonth}
+            disabled={isCurrentMonth(selectedMonth)}
+            style={({ pressed }) => [
+              styles.monthButton,
+              isCurrentMonth(selectedMonth) && styles.monthButtonDisabled,
+              pressed && !isCurrentMonth(selectedMonth) && styles.buttonPressed,
+            ]}
+          >
+            <Text
+              style={[
+                styles.monthButtonText,
+                isCurrentMonth(selectedMonth) && styles.monthButtonTextDisabled,
+              ]}
+            >
+              →
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* ── Monatsübersicht ── */}
         <WeeklySummaryCard
-          weeklyEntriesCount={weeklyEntries.length}
-          weeklyWorked={formatMinutesToHHMM(weeklyWorkedMinutes)}
-          // Vorzeichen manuell hinzufügen da formatMinutesToHHMM nur "-" kennt
-          weeklyDiff={`${weeklyDiffMinutes > 0 ? "+" : ""}${formatMinutesToHHMM(weeklyDiffMinutes)}`}
-          // Farbe je nach Über- (+), Unter- (-) oder Normallage (0)
+          weeklyEntriesCount={monthlyEntries.length}
+          weeklyWorked={formatMinutesToHHMM(monthlyWorkedMinutes)}
+          weeklyDiff={`${monthlyDiffMinutes > 0 ? "+" : ""}${formatMinutesToHHMM(monthlyDiffMinutes)}`}
           weeklyDiffColor={
-            weeklyDiffMinutes > 0
+            monthlyDiffMinutes > 0
               ? Colors.success
-              : weeklyDiffMinutes < 0
+              : monthlyDiffMinutes < 0
                 ? Colors.danger
                 : Colors.textMuted
           }
         />
 
-        {/* ── Alle löschen Button ── */}
-        <Pressable
-          onPress={handleClear}
-          style={({ pressed }) => [
-            styles.clearButton,
-            pressed && styles.buttonPressed,
-          ]}
-        >
-          <Text style={styles.clearButtonText}>Alle Einträge löschen</Text>
-        </Pressable>
-
-        {/* ── Eintrags-Liste oder Leer-Zustand ── */}
         {entries.length === 0 ? (
           <View style={styles.emptyCard}>
             <Text style={styles.emptyTitle}>Noch keine Einträge</Text>
@@ -396,63 +361,33 @@ export default function HistoryScreen() {
               Sobald du Tage speicherst, erscheinen sie hier.
             </Text>
           </View>
+        ) : monthlyEntries.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>
+              Keine Einträge in diesem Monat
+            </Text>
+            <Text style={styles.emptyText}>
+              Wähle einen anderen Monat oder speichere neue Tage.
+            </Text>
+          </View>
         ) : (
-          <>
-            {/* Drei Sektionen: diese Woche / letzte Woche / älter */}
-            <HistorySection
-              title="Diese Woche"
-              items={groupedEntries.thisWeek}
-              editingId={editingId}
-              editStartTime={editStartTime}
-              editPause={editPause}
-              editActualEnd={editActualEnd}
-              setEditStartTime={setEditStartTime}
-              setEditPause={setEditPause}
-              setEditActualEnd={setEditActualEnd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onUpdate={handleUpdate}
-              onCancelEdit={() => setEditingId(null)}
-              formatDate={formatDate}
-              calculateWorkedHours={calculateWorkedHours}
-            />
-
-            <HistorySection
-              title="Letzte Woche"
-              items={groupedEntries.lastWeek}
-              editingId={editingId}
-              editStartTime={editStartTime}
-              editPause={editPause}
-              editActualEnd={editActualEnd}
-              setEditStartTime={setEditStartTime}
-              setEditPause={setEditPause}
-              setEditActualEnd={setEditActualEnd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onUpdate={handleUpdate}
-              onCancelEdit={() => setEditingId(null)}
-              formatDate={formatDate}
-              calculateWorkedHours={calculateWorkedHours}
-            />
-
-            <HistorySection
-              title="Älter"
-              items={groupedEntries.older}
-              editingId={editingId}
-              editStartTime={editStartTime}
-              editPause={editPause}
-              editActualEnd={editActualEnd}
-              setEditStartTime={setEditStartTime}
-              setEditPause={setEditPause}
-              setEditActualEnd={setEditActualEnd}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onUpdate={handleUpdate}
-              onCancelEdit={() => setEditingId(null)}
-              formatDate={formatDate}
-              calculateWorkedHours={calculateWorkedHours}
-            />
-          </>
+          <HistorySection
+            title={formatMonthLabel(selectedMonth)}
+            items={sortedMonthlyEntries}
+            editingId={editingId}
+            editStartTime={editStartTime}
+            editPause={editPause}
+            editActualEnd={editActualEnd}
+            setEditStartTime={setEditStartTime}
+            setEditPause={setEditPause}
+            setEditActualEnd={setEditActualEnd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onUpdate={handleUpdate}
+            onCancelEdit={() => setEditingId(null)}
+            formatDate={formatDate}
+            calculateWorkedHours={calculateWorkedHours}
+          />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -472,7 +407,6 @@ const styles = StyleSheet.create({
     paddingBottom: 28,
   },
 
-  // Status-Badge oben links
   badge: {
     alignSelf: "flex-start",
     flexDirection: "row",
@@ -508,11 +442,44 @@ const styles = StyleSheet.create({
   subtitle: {
     ...Typography.subtitle,
     color: Colors.textSoft,
-    marginBottom: 22,
+    marginBottom: 18,
     maxWidth: 340,
   },
 
-  // Dezenter Sekundär-Button für destruktive Aktion
+  monthNav: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  monthButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: Colors.card2,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  monthButtonDisabled: {
+    opacity: 0.45,
+  },
+  monthButtonText: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: "900",
+  },
+  monthButtonTextDisabled: {
+    color: Colors.textMuted,
+  },
+  monthLabel: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+    textTransform: "capitalize",
+  },
+
   clearButton: {
     backgroundColor: Colors.card2,
     borderRadius: 20,
@@ -529,7 +496,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  // Leer-Zustand wenn noch keine Einträge vorhanden
   emptyCard: {
     backgroundColor: Colors.card,
     borderRadius: Layout.radiusBig,
@@ -551,7 +517,6 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
 
-  // Press-Feedback: leichtes Eindrücken + Abdunkeln
   buttonPressed: {
     opacity: 0.85,
     transform: [{ scale: 0.985 }],
