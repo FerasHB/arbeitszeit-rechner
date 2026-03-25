@@ -179,10 +179,10 @@ function StartButton({
 
   const handlePressIn = () => {
     Animated.spring(pressScale, {
-      toValue: 0.97,
+      toValue: 0.965,
       useNativeDriver: true,
-      speed: 40,
-      bounciness: 4,
+      speed: 55,
+      bounciness: 3,
     }).start();
   };
 
@@ -190,8 +190,8 @@ function StartButton({
     Animated.spring(pressScale, {
       toValue: 1,
       useNativeDriver: true,
-      speed: 30,
-      bounciness: 6,
+      speed: 38,
+      bounciness: 5,
     }).start();
   };
 
@@ -240,6 +240,10 @@ export default function StartScreen() {
   const cardsAnim = useAV(0);
   const ctaAnim = useAV(0);
   const footerAnim = useAV(0);
+  const screenFade = useAV(1);
+  const screenScale = useAV(1);
+  const screenTranslate = useAV(0);
+  const isNavigating = useRef(false);
 
   useEffect(() => {
     const run = (value: Animated.Value, delay: number, duration = 520) =>
@@ -262,138 +266,170 @@ export default function StartScreen() {
   }, [badgeAnim, cardsAnim, ctaAnim, footerAnim, subAnim, titleAnim]);
 
   const handleStart = () => {
-    router.replace("/(tabs)/home" as any);
+    if (isNavigating.current) return;
+    isNavigating.current = true;
+
+    Animated.parallel([
+      Animated.timing(screenFade, {
+        toValue: 0,
+        duration: 260,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(screenScale, {
+        toValue: 0.98,
+        duration: 260,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+      Animated.timing(screenTranslate, {
+        toValue: 12,
+        duration: 260,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      router.replace("/(tabs)/home" as any);
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
 
-      <FloatingOrb size={180} top={90} left={-40} delay={0} />
-      <FloatingOrb size={130} top={340} left={260} delay={400} />
-      <FloatingOrb size={110} top={560} left={20} delay={700} />
+      <Animated.View
+        style={{
+          flex: 1,
+          opacity: screenFade,
+          transform: [{ scale: screenScale }, { translateY: screenTranslate }],
+        }}
+      >
+        <FloatingOrb size={180} top={90} left={-40} delay={0} />
+        <FloatingOrb size={130} top={340} left={260} delay={400} />
+        <FloatingOrb size={110} top={560} left={20} delay={700} />
 
-      <View style={styles.inner}>
-        <Animated.View
-          style={[
-            styles.badgeRow,
-            {
-              opacity: badgeAnim,
-              transform: [
-                {
-                  translateY: badgeAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [-8, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View style={styles.badge}>
-            <View style={styles.badgeDot} />
-            <Text style={styles.badgeText}>Arbeitszeit intelligent</Text>
-          </View>
-          <Text style={styles.version}>v1.0</Text>
-        </Animated.View>
-
-        <Animated.View
-          style={{
-            opacity: titleAnim,
-            transform: [
+        <View style={styles.inner}>
+          <Animated.View
+            style={[
+              styles.badgeRow,
               {
-                translateY: titleAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [20, 0],
-                }),
+                opacity: badgeAnim,
+                transform: [
+                  {
+                    translateY: badgeAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-8, 0],
+                    }),
+                  },
+                ],
               },
-            ],
-          }}
-        >
-          <Text style={styles.title}>Zeit, die sich{"\n"}klar anfühlt.</Text>
-        </Animated.View>
+            ]}
+          >
+            <View style={styles.badge}>
+              <View style={styles.badgeDot} />
+              <Text style={styles.badgeText}>Arbeitszeit intelligent</Text>
+            </View>
+            <Text style={styles.version}>v1.0</Text>
+          </Animated.View>
 
-        <Animated.Text
-          style={[
-            styles.subtitle,
-            {
-              opacity: subAnim,
+          <Animated.View
+            style={{
+              opacity: titleAnim,
               transform: [
                 {
-                  translateY: subAnim.interpolate({
+                  translateY: titleAnim.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [16, 0],
+                    outputRange: [20, 0],
                   }),
                 },
               ],
-            },
-          ]}
-        >
-          Endzeit berechnen, Arbeitszeit erfassen und Unterschiede sofort sehen
-          — schnell, sauber und ohne unnötigen Aufwand.
-        </Animated.Text>
+            }}
+          >
+            <Text style={styles.title}>Zeit, die sich{"\n"}klar anfühlt.</Text>
+          </Animated.View>
 
-        <Animated.View
-          style={[
-            styles.highlightCard,
-            {
-              opacity: cardsAnim,
-              transform: [
-                {
-                  translateY: cardsAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [24, 0],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <Text style={styles.highlightEyebrow}>Schneller Überblick</Text>
+          <Animated.Text
+            style={[
+              styles.subtitle,
+              {
+                opacity: subAnim,
+                transform: [
+                  {
+                    translateY: subAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [16, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            Endzeit berechnen, Arbeitszeit erfassen und Unterschiede sofort
+            sehen — schnell, sauber und ohne unnötigen Aufwand.
+          </Animated.Text>
 
-          <View style={styles.metricsRow}>
-            <Metric label="Endzeit" value="08:30 → 17:00" delay={460} />
-            <Metric label="Dauer" value="08:00 h" delay={540} />
-            <Metric label="Differenz" value="+00:15" delay={620} />
-          </View>
+          <Animated.View
+            style={[
+              styles.highlightCard,
+              {
+                opacity: cardsAnim,
+                transform: [
+                  {
+                    translateY: cardsAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [24, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <Text style={styles.highlightEyebrow}>Schneller Überblick</Text>
 
-          <View style={styles.featureList}>
-            <View style={styles.featureItem}>
-              <View style={styles.featureBullet} />
-              <Text style={styles.featureText}>
-                Pause und Zielstunden flexibel
-              </Text>
+            <View style={styles.metricsRow}>
+              <Metric label="Endzeit" value="08:30 → 17:00" delay={460} />
+              <Metric label="Dauer" value="08:00 h" delay={540} />
+              <Metric label="Differenz" value="+00:15" delay={620} />
             </View>
-            <View style={styles.featureItem}>
-              <View style={styles.featureBullet} />
-              <Text style={styles.featureText}>
-                History mit Übersicht und Bearbeiten
-              </Text>
+
+            <View style={styles.featureList}>
+              <View style={styles.featureItem}>
+                <View style={styles.featureBullet} />
+                <Text style={styles.featureText}>
+                  Pause und Zielstunden flexibel
+                </Text>
+              </View>
+              <View style={styles.featureItem}>
+                <View style={styles.featureBullet} />
+                <Text style={styles.featureText}>
+                  History mit Übersicht und Bearbeiten
+                </Text>
+              </View>
+              <View style={styles.featureItem}>
+                <View style={styles.featureBullet} />
+                <Text style={styles.featureText}>
+                  Schnell genug für den Alltag
+                </Text>
+              </View>
             </View>
-            <View style={styles.featureItem}>
-              <View style={styles.featureBullet} />
-              <Text style={styles.featureText}>
-                Schnell genug für den Alltag
-              </Text>
-            </View>
-          </View>
-        </Animated.View>
+          </Animated.View>
 
-        <View style={{ flex: 1 }} />
+          <View style={{ flex: 1 }} />
 
-        <StartButton onPress={handleStart} visibleAnim={ctaAnim} />
+          <StartButton onPress={handleStart} visibleAnim={ctaAnim} />
 
-        <Animated.Text
-          style={[
-            styles.footerText,
-            {
-              opacity: footerAnim,
-            },
-          ]}
-        >
-          Keine Werbung · Offline nutzbar · Direkt startklar
-        </Animated.Text>
-      </View>
+          <Animated.Text
+            style={[
+              styles.footerText,
+              {
+                opacity: footerAnim,
+              },
+            ]}
+          >
+            Keine Werbung · Offline nutzbar · Direkt startklar
+          </Animated.Text>
+        </View>
+      </Animated.View>
     </SafeAreaView>
   );
 }
