@@ -1,5 +1,6 @@
 import React from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { Colors, Layout } from "../../constants/theme";
 
 type Props = {
   weeklyEntriesCount: number;
@@ -15,45 +16,58 @@ export default function WeeklySummaryCard({
   weeklyDiffColor,
 }: Props) {
   return (
-    <View
-      style={{
-        backgroundColor: "#1a1a1a",
-        borderRadius: 16,
-        padding: 14,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: "#2a2a2a",
-      }}
-    >
-      <Text
-        style={{
-          color: "#fff",
-          fontSize: 16,
-          fontWeight: "900",
-          marginBottom: 10,
-        }}
-      >
-        Diese Woche
-      </Text>
+    <View style={styles.card}>
+      <Text style={styles.title}>Diese Woche</Text>
 
-      <Text style={{ color: "#d1d5db", fontSize: 14 }}>
-        Einträge: {weeklyEntriesCount}
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Einträge</Text>
+        <Text style={styles.value}>{weeklyEntriesCount}</Text>
+      </View>
 
-      <Text style={{ color: "#d1d5db", fontSize: 14, marginTop: 4 }}>
-        Gearbeitet: {weeklyWorked} h
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Gearbeitet</Text>
+        <Text style={styles.value}>{weeklyWorked} h</Text>
+      </View>
 
-      <Text
-        style={{
-          fontSize: 14,
-          fontWeight: "800",
-          marginTop: 4,
-          color: weeklyDiffColor,
-        }}
-      >
-        Überstunden: {weeklyDiff}
-      </Text>
+      <View style={styles.row}>
+        <Text style={styles.label}>Überstunden</Text>
+        <Text style={[styles.value, { color: weeklyDiffColor }]}>
+          {weeklyDiff}
+        </Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: Colors.card,
+    borderRadius: Layout.radiusBig,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    padding: 18,
+    marginBottom: 14,
+    gap: 10,
+  },
+  title: {
+    color: Colors.accent,
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  label: {
+    color: Colors.textSoft,
+    fontSize: 14,
+  },
+  value: {
+    color: Colors.text,
+    fontSize: 15,
+    fontWeight: "800",
+  },
+});

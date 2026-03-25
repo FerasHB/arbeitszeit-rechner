@@ -1,6 +1,7 @@
 import React from "react";
-import { Text, View } from "react-native";
-import { WorkEntry } from "../../storage/workEntries";
+import { StyleSheet, Text, View } from "react-native";
+import { Colors } from "../../constants/theme";
+import type { WorkEntry } from "../../storage/workEntries";
 import HistoryCard from "./history-card";
 
 type Props = {
@@ -42,20 +43,11 @@ export default function HistorySection({
   formatDate,
   calculateWorkedHours,
 }: Props) {
-  if (items.length === 0) return null;
+  if (!items.length) return null;
 
   return (
-    <View style={{ marginTop: 18 }}>
-      <Text
-        style={{
-          color: "#fff",
-          fontSize: 18,
-          fontWeight: "900",
-          marginBottom: 10,
-        }}
-      >
-        {title}
-      </Text>
+    <View style={styles.section}>
+      <Text style={styles.title}>{title}</Text>
 
       {items.map((item) => (
         <HistoryCard
@@ -79,3 +71,16 @@ export default function HistorySection({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  section: {
+    marginTop: 14,
+  },
+  title: {
+    color: Colors.accent,
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+});

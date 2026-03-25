@@ -1,6 +1,7 @@
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Swipeable from "react-native-gesture-handler/Swipeable";
+import { Colors, Layout } from "../../constants/theme";
 import { WorkEntry } from "../../storage/workEntries";
 import LabeledInput from "../LabeledInput";
 
@@ -42,31 +43,27 @@ export default function HistoryCard({
   calculateWorkedHours,
 }: Props) {
   const isEditing = editingId === item.id;
+
+  const diffColor = !item.diff
+    ? Colors.textMuted
+    : item.diff.startsWith("+")
+      ? Colors.success
+      : item.diff.startsWith("-")
+        ? Colors.danger
+        : Colors.textMuted;
+
   const renderRightActions = () => {
     return (
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginBottom: 12,
-        }}
-      >
+      <View style={styles.swipeWrapper}>
         <Pressable
           onPress={() => onDelete(item.id)}
-          style={({ pressed }) => ({
-            width: 92,
-            height: "100%",
-            minHeight: 120,
-            backgroundColor: "#dc2626",
-            borderRadius: 16,
-            justifyContent: "center",
-            alignItems: "center",
-            opacity: pressed ? 0.8 : 1,
-          })}
+          style={({ pressed }) => [
+            styles.deleteSwipeButton,
+            pressed && styles.buttonPressed,
+          ]}
         >
-          <Text style={{ color: "#fff", fontWeight: "900", fontSize: 13 }}>
-            Löschen
-          </Text>
+          <Text style={styles.deleteSwipeEmoji}>🗑️</Text>
+          <Text style={styles.deleteSwipeText}>Löschen</Text>
         </Pressable>
       </View>
     );
@@ -77,56 +74,25 @@ export default function HistoryCard({
       renderRightActions={renderRightActions}
       overshootRight={false}
       friction={2}
-      rightThreshold={30}
+      rightThreshold={40}
     >
-      <View
-        style={{
-          backgroundColor: "#1a1a1a",
-          padding: 14,
-          borderRadius: 16,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: "#2a2a2a",
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: 8,
-          }}
-        >
-          <Text
-            style={{
-              color: "#fff",
-              fontWeight: "900",
-              fontSize: 16,
-            }}
-          >
-            {formatDate(item.date)}
-          </Text>
+      <View style={styles.card}>
+        <View style={styles.headerRow}>
+          <Text style={styles.date}>{formatDate(item.date)}</Text>
 
-          <View style={{ flexDirection: "row", gap: 8 }}>
-            <Pressable
-              onPress={() => onEdit(item)}
-              style={({ pressed }) => ({
-                backgroundColor: "#1d4ed8",
-                paddingVertical: 6,
-                paddingHorizontal: 10,
-                borderRadius: 10,
-                opacity: pressed ? 0.7 : 1,
-              })}
-            >
-              <Text style={{ color: "#fff", fontWeight: "800", fontSize: 12 }}>
-                Bearbeiten
-              </Text>
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={() => onEdit(item)}
+            style={({ pressed }) => [
+              styles.editButton,
+              pressed && styles.buttonPressed,
+            ]}
+          >
+            <Text style={styles.editEmoji}>✏️</Text>
+          </Pressable>
         </View>
 
         {isEditing ? (
-          <View style={{ marginTop: 10, gap: 10 }}>
+          <View style={styles.editBox}>
             <LabeledInput
               label="Startzeit"
               value={editStartTime}
@@ -151,119 +117,196 @@ export default function HistoryCard({
               keyboardType="numbers-and-punctuation"
             />
 
-            <View style={{ flexDirection: "row", gap: 10, marginTop: 6 }}>
+            <View style={styles.editButtonsRow}>
               <Pressable
                 onPress={() => onUpdate(item)}
-                style={{
-                  flex: 1,
-                  backgroundColor: "#166534",
-                  paddingVertical: 10,
-                  borderRadius: 10,
-                  alignItems: "center",
-                }}
+                style={({ pressed }) => [
+                  styles.saveButton,
+                  pressed && styles.buttonPressed,
+                ]}
               >
-                <Text style={{ color: "#fff", fontWeight: "800" }}>
-                  Speichern
-                </Text>
+                <Text style={styles.saveButtonText}>Speichern</Text>
               </Pressable>
 
               <Pressable
                 onPress={onCancelEdit}
-                style={{
-                  flex: 1,
-                  backgroundColor: "#444",
-                  paddingVertical: 10,
-                  borderRadius: 10,
-                  alignItems: "center",
-                }}
+                style={({ pressed }) => [
+                  styles.cancelButton,
+                  pressed && styles.buttonPressed,
+                ]}
               >
-                <Text style={{ color: "#fff", fontWeight: "800" }}>
-                  Abbrechen
-                </Text>
+                <Text style={styles.cancelButtonText}>Abbrechen</Text>
               </Pressable>
             </View>
           </View>
         ) : (
-          <>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 6,
-              }}
-            >
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 18,
-                  fontWeight: "800",
-                }}
-              >
-                {item.startTime}
-              </Text>
-
-              <Text
-                style={{
-                  color: "#9aa0a6",
-                  marginHorizontal: 6,
-                  fontSize: 16,
-                }}
-              >
-                →
-              </Text>
-
-              <Text
-                style={{
-                  color: "#fff",
-                  fontSize: 18,
-                  fontWeight: "800",
-                }}
-              >
+          <View style={styles.infoBox}>
+            <View style={styles.timeRow}>
+              <Text style={styles.timeText}>{item.startTime}</Text>
+              <Text style={styles.arrow}>→</Text>
+              <Text style={styles.timeText}>
                 {item.actualEnd || item.plannedEnd}
               </Text>
             </View>
 
-            <Text
-              style={{
-                color: "#9aa0a6",
-                fontSize: 14,
-                marginTop: 6,
-              }}
-            >
-              Pause: {item.pause} min
-            </Text>
+            <Text style={styles.pauseText}>Pause: {item.pause} Min.</Text>
 
-            <Text
-              style={{
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: "900",
-                marginTop: 8,
-              }}
-            >
+            <Text style={styles.workedText}>
               Gearbeitet:{" "}
               {calculateWorkedHours(item.startTime, item.actualEnd, item.pause)}
             </Text>
 
             {!!item.diff && (
-              <Text
-                style={{
-                  marginTop: 6,
-                  fontSize: 16,
-                  fontWeight: "900",
-                  color: item.diff.startsWith("+")
-                    ? "#16a34a"
-                    : item.diff.startsWith("-")
-                      ? "#dc2626"
-                      : "#9aa0a6",
-                }}
-              >
+              <Text style={[styles.diffText, { color: diffColor }]}>
                 {item.diff}
               </Text>
             )}
-          </>
+          </View>
         )}
       </View>
     </Swipeable>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: Colors.card,
+    padding: 16,
+    borderRadius: Layout.radiusBig,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  swipeWrapper: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+    marginLeft: 10,
+  },
+  deleteSwipeButton: {
+    width: 96,
+    minHeight: 126,
+    backgroundColor: "rgba(239,68,68,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(239,68,68,0.28)",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  deleteSwipeEmoji: {
+    fontSize: 20,
+  },
+  deleteSwipeText: {
+    color: Colors.danger,
+    fontWeight: "900",
+    fontSize: 13,
+  },
+
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  date: {
+    color: Colors.text,
+    fontWeight: "900",
+    fontSize: 16,
+  },
+
+  editButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    backgroundColor: Colors.card2,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  editEmoji: {
+    fontSize: 16,
+  },
+
+  editBox: {
+    marginTop: 8,
+    gap: 12,
+  },
+  editButtonsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 4,
+  },
+
+  saveButton: {
+    flex: 1,
+    backgroundColor: Colors.accent,
+    minHeight: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  saveButtonText: {
+    color: "#111",
+    fontWeight: "900",
+    fontSize: 14,
+  },
+
+  cancelButton: {
+    flex: 1,
+    backgroundColor: Colors.card2,
+    minHeight: 48,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  cancelButtonText: {
+    color: Colors.text,
+    fontWeight: "800",
+    fontSize: 14,
+  },
+
+  infoBox: {
+    marginTop: 2,
+  },
+  timeRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+  },
+  timeText: {
+    color: Colors.text,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  arrow: {
+    color: Colors.textMuted,
+    marginHorizontal: 8,
+    fontSize: 16,
+  },
+  pauseText: {
+    color: Colors.textSoft,
+    fontSize: 14,
+    marginTop: 8,
+  },
+  workedText: {
+    color: Colors.text,
+    fontSize: 16,
+    fontWeight: "900",
+    marginTop: 8,
+  },
+  diffText: {
+    marginTop: 6,
+    fontSize: 16,
+    fontWeight: "900",
+  },
+
+  buttonPressed: {
+    opacity: 0.85,
+    transform: [{ scale: 0.985 }],
+  },
+});
