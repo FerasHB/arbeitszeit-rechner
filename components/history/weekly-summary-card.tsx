@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { Colors, Layout } from "../../constants/theme";
+import { Colors } from "../../constants/theme";
 
 type Props = {
   weeklyEntriesCount: number;
@@ -17,21 +17,17 @@ export default function WeeklySummaryCard({
 }: Props) {
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Diese Woche</Text>
+      {/* Title */}
+      <Text style={styles.title}>Monatsübersicht</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Einträge</Text>
-        <Text style={styles.value}>{weeklyEntriesCount}</Text>
-      </View>
+      {/* Main Value (wichtigster Wert groß) */}
+      <Text style={styles.mainValue}>{weeklyWorked} h</Text>
 
+      {/* Untere Infos kompakt */}
       <View style={styles.row}>
-        <Text style={styles.label}>Gearbeitet</Text>
-        <Text style={styles.value}>{weeklyWorked} h</Text>
-      </View>
+        <Text style={styles.metaText}>{weeklyEntriesCount} Einträge</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>Überstunden</Text>
-        <Text style={[styles.value, { color: weeklyDiffColor }]}>
+        <Text style={[styles.metaText, { color: weeklyDiffColor }]}>
           {weeklyDiff}
         </Text>
       </View>
@@ -42,32 +38,36 @@ export default function WeeklySummaryCard({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: Colors.card,
-    borderRadius: Layout.radiusBig,
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: Colors.border,
-    padding: 18,
-    marginBottom: 14,
-    gap: 10,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginBottom: 12,
   },
+
   title: {
-    color: Colors.accent,
-    fontSize: 13,
-    fontWeight: "800",
-    letterSpacing: 0.5,
-    marginBottom: 2,
+    color: Colors.textMuted,
+    fontSize: 12,
+    fontWeight: "700",
+    marginBottom: 6,
   },
+
+  mainValue: {
+    color: Colors.text,
+    fontSize: 22,
+    fontWeight: "900",
+    marginBottom: 6,
+  },
+
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
   },
-  label: {
+
+  metaText: {
     color: Colors.textSoft,
-    fontSize: 14,
-  },
-  value: {
-    color: Colors.text,
-    fontSize: 15,
-    fontWeight: "800",
+    fontSize: 13,
+    fontWeight: "600",
   },
 });
