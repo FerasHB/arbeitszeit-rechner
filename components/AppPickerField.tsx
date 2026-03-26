@@ -1,5 +1,6 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
+import { Colors } from "../constants/theme";
 
 type Props = {
   label: string;
@@ -10,23 +11,23 @@ type Props = {
 export default function AppPickerField({ label, valueLabel, onPress }: Props) {
   return (
     <View style={{ gap: 8 }}>
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#e5e7eb" }}>
+      <Text style={{ fontSize: 13, fontWeight: "700", color: Colors.textSoft }}>
         {label}
       </Text>
 
       <Pressable
         onPress={onPress}
         style={({ pressed }) => ({
-          backgroundColor: "#1a1a1a",
-          borderRadius: 14,
-          paddingVertical: 14,
+          backgroundColor: Colors.card2,
+          borderRadius: 16,
+          paddingVertical: 11,
           paddingHorizontal: 14,
           borderWidth: 1,
-          borderColor: "#2a2a2a",
+          borderColor: Colors.border,
           opacity: pressed ? 0.85 : 1,
         })}
       >
-        <Text style={{ color: "#fff", fontSize: 15 }}>{valueLabel}</Text>
+        <Text style={{ color: Colors.text, fontSize: 14 }}>{valueLabel}</Text>
       </Pressable>
     </View>
   );

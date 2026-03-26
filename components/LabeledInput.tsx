@@ -1,13 +1,6 @@
 import React from "react";
-import {
-  InputAccessoryView,
-  Keyboard,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Text, TextInput, View } from "react-native";
+import { Colors } from "../constants/theme";
 
 type Props = {
   label: string;
@@ -24,13 +17,10 @@ export default function LabeledInput({
   onChangeText,
   placeholder,
   keyboardType = "default",
-  returnKeyType = "done",
 }: Props) {
-  const accessoryId = `acc-${label.replace(/\s+/g, "-")}`;
-
   return (
     <View style={{ gap: 8 }}>
-      <Text style={{ fontSize: 13, fontWeight: "700", color: "#fcfcfc" }}>
+      <Text style={{ fontSize: 13, fontWeight: "700", color: Colors.textSoft }}>
         {label}
       </Text>
 
@@ -38,48 +28,19 @@ export default function LabeledInput({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="#9aa0a6"
+        placeholderTextColor={Colors.textMuted}
         keyboardType={keyboardType}
-        returnKeyType={returnKeyType}
-        onSubmitEditing={Keyboard.dismiss}
-        inputAccessoryViewID={Platform.OS === "ios" ? accessoryId : undefined}
         style={{
-          backgroundColor: "#1a1a1a",
-          borderRadius: 10,
-          paddingVertical: 10,
+          backgroundColor: Colors.card2,
+          borderRadius: 16,
+          paddingVertical: 11,
           paddingHorizontal: 14,
-          fontSize: 16,
-          color: "#fff",
+          fontSize: 14,
+          color: Colors.text,
           borderWidth: 1,
-          borderColor: "#2a2a2a",
+          borderColor: Colors.border,
         }}
       />
-
-      {Platform.OS === "ios" && (
-        <InputAccessoryView nativeID={accessoryId}>
-          <View
-            style={{
-              backgroundColor: "#020101",
-              padding: 10,
-              alignItems: "flex-end",
-              borderTopWidth: 1,
-              borderTopColor: "#020202",
-            }}
-          >
-            <Pressable
-              onPress={Keyboard.dismiss}
-              style={{
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                backgroundColor: "#166534",
-                borderRadius: 10,
-              }}
-            >
-              <Text style={{ color: "#fff", fontWeight: "800" }}>Fertig</Text>
-            </Pressable>
-          </View>
-        </InputAccessoryView>
-      )}
     </View>
   );
 }

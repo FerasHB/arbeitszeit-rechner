@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import { Colors, Layout } from "../constants/theme";
 
 type Props = {
   endTime?: string;
@@ -11,34 +12,23 @@ export default function ResultCard({ endTime, actualEnd, diff }: Props) {
   const showDiff = Boolean(actualEnd?.trim()) && Boolean(diff?.trim());
 
   const diffColor = !diff
-    ? "#6b7280"
+    ? Colors.textMuted
     : diff.startsWith("+")
-      ? "#16a34a"
+      ? Colors.success
       : diff.startsWith("-")
-        ? "#dc2626"
-        : "#6b7280";
+        ? Colors.danger
+        : Colors.textMuted;
 
-  const flashColor = diff?.startsWith("+")
-    ? "rgba(22,163,74,0.25)"
-    : diff?.startsWith("-")
-      ? "rgba(220,38,38,0.25)"
-      : "#111111";
-
-  const flashAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const translateAnim = useRef(new Animated.Value(12)).current;
   const scaleAnim = useRef(new Animated.Value(0.98)).current;
-  const animatedBackground = flashAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["#111111", flashColor],
-  });
+
   useEffect(() => {
     if (!endTime) return;
 
     fadeAnim.setValue(0);
     translateAnim.setValue(12);
     scaleAnim.setValue(0.98);
-    flashAnim.setValue(0);
 
     Animated.parallel([
       Animated.timing(fadeAnim, {
@@ -57,60 +47,45 @@ export default function ResultCard({ endTime, actualEnd, diff }: Props) {
         useNativeDriver: true,
       }),
     ]).start();
-
-    // 👉 Flash nur wenn diff vorhanden
-    if (diff && (diff.startsWith("+") || diff.startsWith("-"))) {
-      Animated.sequence([
-        Animated.timing(flashAnim, {
-          toValue: 1,
-          duration: 150,
-          useNativeDriver: false,
-        }),
-        Animated.timing(flashAnim, {
-          toValue: 0,
-          duration: 400,
-          useNativeDriver: false,
-        }),
-      ]).start();
-    }
-  }, [endTime, diff]);
+  }, [endTime, diff, fadeAnim, translateAnim, scaleAnim]);
 
   return (
     <Animated.View
       style={{
-        marginTop: 12,
+        marginTop: 10,
         opacity: fadeAnim,
         transform: [{ translateY: translateAnim }, { scale: scaleAnim }],
       }}
     >
-      <Animated.View
+      <View
         style={{
-          backgroundColor: "#111111",
-          borderRadius: 24,
-          padding: 14,
-          alignItems: "center",
+          backgroundColor: Colors.card,
+          borderRadius: Layout.radiusBig,
           borderWidth: 1,
-          borderColor: "#1f1f1f",
+          borderColor: Colors.border,
+          padding: 18,
+          alignItems: "center",
         }}
       >
-        <Text style={{ color: "#9aa0a6", fontWeight: "700" }}>
+        <Text style={{ color: Colors.textSoft, fontWeight: "700" }}>
           Soll-Endzeit
         </Text>
 
         <Text
           style={{
-            marginTop: 8,
-            fontSize: 30,
+            marginTop: 10,
+            fontSize: 34,
             fontWeight: "900",
-            color: "#fff",
+            color: Colors.text,
+            letterSpacing: -0.6,
           }}
         >
           {endTime || "--:--"}
         </Text>
 
         {showDiff && (
-          <View style={{ marginTop: 12, alignItems: "center", gap: 6 }}>
-            <Text style={{ color: "#9aa0a6", fontWeight: "700" }}>
+          <View style={{ marginTop: 14, alignItems: "center", gap: 6 }}>
+            <Text style={{ color: Colors.textSoft, fontWeight: "700" }}>
               Tatsächlich: {actualEnd}
             </Text>
 
@@ -119,7 +94,7 @@ export default function ResultCard({ endTime, actualEnd, diff }: Props) {
             </Text>
           </View>
         )}
-      </Animated.View>
+      </View>
     </Animated.View>
   );
 }

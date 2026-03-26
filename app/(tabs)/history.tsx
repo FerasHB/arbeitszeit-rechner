@@ -481,22 +481,6 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
 
-  clearButton: {
-    backgroundColor: Colors.card2,
-    borderRadius: 20,
-    minHeight: 52,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.border,
-    marginBottom: 14,
-  },
-  clearButtonText: {
-    color: Colors.text,
-    fontSize: 14,
-    fontWeight: "800",
-  },
-
   emptyCard: {
     backgroundColor: Colors.card,
     borderRadius: Layout.radiusBig,
