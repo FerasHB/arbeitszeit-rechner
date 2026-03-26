@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     gap: 8,
-    marginBottom: 20,
+    marginBottom: 14,
   },
   badgeDot: {
     width: 7,
@@ -270,15 +270,15 @@ const styles = StyleSheet.create({
   title: {
     ...Typography.title,
     color: Colors.text,
-    lineHeight: 38,
-    marginBottom: 12,
+    lineHeight: 34,
+    marginBottom: 8,
   },
   // subtitle ist im StyleSheet definiert aber nicht im JSX verwendet — kann entfernt werden
   subtitle: {
     ...Typography.subtitle,
     color: Colors.textSoft,
     marginBottom: 22,
-    maxWidth: 340,
+    maxWidth: 320,
   },
 
   // Karte die alle Eingabefelder gruppiert
@@ -287,20 +287,20 @@ const styles = StyleSheet.create({
     borderRadius: Layout.radiusBig,
     borderWidth: 1,
     borderColor: Colors.border,
-    padding: 18,
-    gap: 14, // Abstand zwischen den Feldern
+    padding: 14,
+    gap: 10, // Abstand zwischen den Feldern
   },
 
   buttonRow: {
-    gap: 12,
-    marginTop: 4,
+    gap: 8,
+    marginTop: 2,
   },
 
   // Primär-Button: Akzentfarbe, volle Breite
   primaryButton: {
     backgroundColor: Colors.accent,
     borderRadius: 20,
-    minHeight: 56,
+    minHeight: 50,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   secondaryButton: {
     backgroundColor: Colors.card2,
     borderRadius: 20,
-    minHeight: 54,
+    minHeight: 48,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,

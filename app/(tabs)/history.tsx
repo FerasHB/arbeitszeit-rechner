@@ -342,10 +342,11 @@ export default function HistoryScreen() {
 
         {/* ── Monatsübersicht ── */}
         <WeeklySummaryCard
-          weeklyEntriesCount={monthlyEntries.length}
-          weeklyWorked={formatMinutesToHHMM(monthlyWorkedMinutes)}
-          weeklyDiff={`${monthlyDiffMinutes > 0 ? "+" : ""}${formatMinutesToHHMM(monthlyDiffMinutes)}`}
-          weeklyDiffColor={
+          title={formatMonthLabel(selectedMonth)}
+          entryCount={monthlyEntries.length}
+          worked={formatMinutesToHHMM(monthlyWorkedMinutes)}
+          diff={`${monthlyDiffMinutes > 0 ? "+" : ""}${formatMinutesToHHMM(monthlyDiffMinutes)}`}
+          diffColor={
             monthlyDiffMinutes > 0
               ? Colors.success
               : monthlyDiffMinutes < 0

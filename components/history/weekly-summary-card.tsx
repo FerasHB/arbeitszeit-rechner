@@ -3,33 +3,29 @@ import { StyleSheet, Text, View } from "react-native";
 import { Colors } from "../../constants/theme";
 
 type Props = {
-  weeklyEntriesCount: number;
-  weeklyWorked: string;
-  weeklyDiff: string;
-  weeklyDiffColor: string;
+  title: string;
+  entryCount: number;
+  worked: string;
+  diff: string;
+  diffColor: string;
 };
 
 export default function WeeklySummaryCard({
-  weeklyEntriesCount,
-  weeklyWorked,
-  weeklyDiff,
-  weeklyDiffColor,
+  title,
+  entryCount,
+  worked,
+  diff,
+  diffColor,
 }: Props) {
   return (
     <View style={styles.card}>
-      {/* Title */}
-      <Text style={styles.title}>Monatsübersicht</Text>
+      <Text style={styles.title}>{title}</Text>
 
-      {/* Main Value (wichtigster Wert groß) */}
-      <Text style={styles.mainValue}>{weeklyWorked} h</Text>
+      <Text style={styles.mainValue}>{worked} h</Text>
 
-      {/* Untere Infos kompakt */}
       <View style={styles.row}>
-        <Text style={styles.metaText}>{weeklyEntriesCount} Einträge</Text>
-
-        <Text style={[styles.metaText, { color: weeklyDiffColor }]}>
-          {weeklyDiff}
-        </Text>
+        <Text style={styles.metaText}>{entryCount} Einträge</Text>
+        <Text style={[styles.metaText, { color: diffColor }]}>{diff}</Text>
       </View>
     </View>
   );
@@ -51,6 +47,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     marginBottom: 6,
+    textTransform: "capitalize",
   },
 
   mainValue: {
