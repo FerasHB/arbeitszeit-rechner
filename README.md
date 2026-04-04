@@ -1,89 +1,94 @@
-# Arbeitszeit Rechner
+# Arbeitszeit Rechner ⏱️
 
-![React Native](https://img.shields.io/badge/React%20Native-0.74-blue)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
-![Expo](https://img.shields.io/badge/Expo-Framework-black)
-![License](https://img.shields.io/badge/License-MIT-green)
+A clean, fast mobile app to calculate working hours, track overtime, and manage your daily work entries — built with React Native and Expo.
 
-Eine mobile App zur Berechnung von Arbeitszeiten und Überstunden.
+<br />
 
----
+## 💡 Idea Behind the App
 
-## Features
+Most people don't track their working hours until they realize they've been working overtime for weeks without noticing. This app was built to solve that in the simplest way possible: open it, enter your start time and break, and instantly know when you should leave — and whether you stayed too long.
 
-- Berechnung der Soll-Endzeit
-- Eingabe der tatsächlichen Endzeit
-- Überstundenberechnung
-- Speicherung von Arbeitstagen
-- History mit gespeicherten Einträgen
-- Wochenübersicht der Arbeitszeit
+No account needed. No cloud sync. Just a practical tool for everyday use.
 
----
+<br />
 
-## Tech Stack
+## 📸 Screenshots
 
-- React Native
-- TypeScript
-- Expo
-- Expo Router
-- AsyncStorage
-- Custom Hooks
-- Komponentenbasierte Architektur
+| Start Screen | Home Screen | History | Swipe Delete |
+|---|---|---|---|
+| ![Start](./screenshots/01-start.png) | ![Home](./screenshots/02-home.png) | ![History](./screenshots/03-history.png) | ![Swipe](./screenshots/04-swipe.png) |
 
----
+<br />
 
-## Projektstruktur
-app
-├─ (tabs)
-│   ├─ index.tsx
-│   ├─ history.tsx
-│   └─ _layout.tsx
-│
-components
-├─ LabeledInput.tsx
-└─ ResultCard.tsx
+## ✨ Features
 
-hooks
-├─ useWorkCalculator.ts
-└─ useWorkEntries.ts
+- **Plan your day** — Enter start time, break duration, and target hours to calculate your planned end time
+- **Track actuals** — Log when you actually stopped working
+- **Overtime at a glance** — Difference between planned and actual time is calculated automatically
+- **Local storage** — All entries are saved privately on your device using AsyncStorage
+- **Monthly overview** — See total hours worked and entry count per month
+- **Full history** — Browse all past entries, grouped by month
+- **Edit entries** — Update any saved entry at any time
+- **Swipe to delete** — Remove entries quickly with a swipe gesture
+- **Dark UI** — Clean, minimal design built for daily use
 
-storage
-└─ workEntries.ts
+<br />
 
-utils
-├─ time.ts
-└─ workCalculator.ts
+## 🛠️ Tech Stack
 
----
+| Technology | Purpose |
+|---|---|
+| React Native (Expo) | Cross-platform mobile framework |
+| TypeScript | Type-safe development |
+| Expo Router | File-based navigation |
+| AsyncStorage | Local on-device persistence |
+| Custom Hooks | Reusable state & logic |
+| Component Architecture | Scalable, maintainable structure |
 
+<br />
 
-## Installation
+## 📁 Project Structure
 
-```bash
-git clone https://github.com/FerasHB/arbeitszeit-rechner.git
+```
+├── app/                  # Screens & routing (Expo Router)
+├── components/           # Shared UI components
+│   └── history/          # History-specific components
+├── hooks/                # Custom React hooks
+├── storage/              # AsyncStorage logic
+└── utils/                # Helper functions & time calculations
 ```
 
-In den Projektordner wechseln:
+<br />
+
+## 🚀 Getting Started
+
+**Prerequisites:** Node.js, Expo CLI, and the Expo Go app on your phone.
+
 ```bash
+# Clone the repository
+git clone https://github.com/FerasHB/arbeitszeit-rechner.git
+
+# Install dependencies
 cd arbeitszeit-rechner
 npm install
+
+# Start the development server
 npx expo start
 ```
 
----
+Scan the QR code with Expo Go (Android) or the Camera app (iOS) to run the app on your device.
 
-## Autor
+<br />
 
-Feras Hababa
+## 👤 Author
 
-GitHub:  
-https://github.com/FerasHB
+**Feras Hababa**
 
-LinkedIn:  
-https://www.linkedin.com/in/feras-hababa-a9227b337/
+- GitHub: [@FerasHB](https://github.com/FerasHB)
+- LinkedIn: [feras-hababa](https://www.linkedin.com/in/feras-hababa-a9227b337/)
 
----
+<br />
 
-## Lizenz
+## 📄 License
 
-Dieses Projekt dient zu Lern- und Demonstrationszwecken.
+This project is licensed under the [MIT License](./LICENSE).
